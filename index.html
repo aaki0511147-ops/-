@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>マイレシピ</title>
+<style>
+:root{--bg:#fbf7f2;--sf:#fff;--tx:#2b2420;--mu:#7a6f66;--ac:#d9622b;--at:#fff;--ln:#eadfd3;--ch:#f3e8dc;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1816;--sf:#27221f;--tx:#f1e9e1;--mu:#a69a90;--ac:#f08a54;--at:#1c1816;--ln:#3a332e;--ch:#3a312b}}
+:root[data-theme="dark"]{--bg:#1c1816;--sf:#27221f;--tx:#f1e9e1;--mu:#a69a90;--ac:#f08a54;--at:#1c1816;--ln:#3a332e;--ch:#3a312b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;line-height:1.6}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:10px 14px 4px;z-index:5;max-width:640px;margin:0 auto}
+main{padding:4px 14px 110px;max-width:640px;margin:0 auto}
+h1{font-size:20px;margin:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}.gap{display:flex;gap:6px}
+input,textarea{width:100%;font:inherit;font-size:16px;color:var(--tx);background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:9px 11px}
+textarea{min-height:70px;resize:vertical}
+.chips,.seg{display:flex;gap:6px;overflow-x:auto;padding:6px 0}
+.chip{flex:none;border:0;background:var(--ch);color:var(--tx);padding:6px 12px;border-radius:999px;font:inherit;font-size:14px}.chip.on{background:var(--ac);color:var(--at)}
+.btn{border:0;border-radius:10px;padding:11px 15px;font:inherit;font-size:16px;background:var(--ch);color:var(--tx);cursor:pointer}.btn.sm{padding:6px 11px;font-size:14px}.btn.p{background:var(--ac);color:var(--at)}.btn.d{color:#c0392b}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.card{padding:0;border:1px solid var(--ln);background:var(--sf);border-radius:14px;overflow:hidden;text-align:left;font:inherit;color:inherit;position:relative;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.card.sel{outline:3px solid var(--ac)}.dc{touch-action:pan-y;cursor:grab}.dc.drg{opacity:.7;transform:scale(1.05);z-index:3;box-shadow:0 6px 18px rgba(0,0,0,.35)}.dc::after{content:'≡';position:absolute;top:2px;right:8px;font-size:22px;color:#fff;text-shadow:0 0 4px rgba(0,0,0,.7)}button.sh{width:100%;background:none;border:0;border-bottom:1px solid var(--ln);border-radius:0;text-align:left;font:inherit;color:var(--tx)}i.cb{display:block;font-style:normal}.grab{width:44px;height:5px;border-radius:3px;background:var(--ln);margin:0 auto 10px}html,body{overscroll-behavior-y:contain}.btn:active,.chip:active,.sb button:active{opacity:.55;transform:scale(.96)}.sb{flex-wrap:wrap}.sb .sv{margin:0;gap:6px}.sb .sv b{min-width:50px;font-size:15px}.sb .sv .btn{width:36px;padding:8px 0}.sb>.btn{padding:10px 12px;font-size:15px}.sb .p{flex:1}.insw{position:relative;text-align:center;height:30px;margin:2px 0}.insw::before{content:'';position:absolute;left:0;right:0;top:50%;border-top:1px dashed var(--ln)}.ins{position:relative;border:1px solid var(--ln);background:var(--bg);color:var(--ac);border-radius:999px;width:48px;height:28px;line-height:24px;font-size:16px;padding:0}
+.im{aspect-ratio:1;background:var(--ch);display:flex;align-items:center;justify-content:center;font-size:40px}.im,.th,.hero,.ph{position:relative;overflow:hidden}.im img,.th img,.ph img,.hero img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.nm{padding:8px 10px;font-weight:600;font-size:15px}
+.ck{position:absolute;top:6px;right:6px;background:var(--ac);color:var(--at);width:26px;height:26px;border-radius:50%;text-align:center;line-height:26px;font-weight:700}
+.rw{display:flex;align-items:center;gap:10px;background:var(--sf);border:1px solid var(--ln);border-radius:12px;padding:6px;margin:8px 0}.rw.drg{opacity:.7;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.th{width:52px;height:52px;border-radius:8px;overflow:hidden;background:var(--ch);display:flex;align-items:center;justify-content:center;flex:none}
+.rw b{flex:1}.hd{display:inline-block;font-size:26px;padding:8px 14px;touch-action:none;color:var(--mu);-webkit-user-select:none;user-select:none;cursor:grab}
+.fab{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;border:0;background:var(--ac);color:var(--at);font-size:30px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.sb{position:fixed;left:0;right:0;bottom:0;background:var(--sf);border-top:1px solid var(--ln);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;align-items:center;z-index:9}.sb span{flex:1}
+label{display:block;font-size:13px;color:var(--mu);margin:14px 0 4px}
+.row{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+.note{font-size:13px;color:var(--mu);margin:8px 0}.empty{text-align:center;color:var(--mu);padding:40px 0}
+.hero,.ph{aspect-ratio:4/3;background:var(--ch);border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:48px}
+.sv{display:flex;align-items:center;gap:12px;margin:10px 0}.sv b{font-size:18px;min-width:70px;text-align:center}.sv .btn{width:44px;padding:8px}
+.il{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--ln)}
+.sp{display:flex;gap:10px;margin:12px 0}.no{flex:none;background:var(--ac);color:var(--at);width:26px;height:26px;border-radius:50%;text-align:center;line-height:26px;font-size:14px}
+.cd{font-size:20px;font-variant-numeric:tabular-nums;margin-right:6px}.dn{color:var(--ac)}
+pre{white-space:pre-wrap;font:inherit;margin:4px 0}
+.ir,.sr{display:flex;gap:6px;margin:6px 0;align-items:flex-start}.ir .in{flex:3}.ir .ia{flex:1.4}.ir .iu{flex:1.6}.sr .st{flex:1}.sr .sm{width:64px}
+.sh{display:flex;align-items:center;gap:12px;font-size:16px;color:var(--tx);margin:0;padding:12px 0;border-bottom:1px solid var(--ln);cursor:pointer;-webkit-user-select:none;user-select:none}.cb{flex:none;width:26px;height:26px;border:2px solid var(--mu);border-radius:7px;text-align:center;line-height:22px;font-size:16px;font-weight:700;color:var(--at)}.sh.dn2 .cb{background:var(--ac);border-color:var(--ac)}.sh span{flex:1}.dn2 span,.dn2 b{text-decoration:line-through;color:var(--mu)}#dlg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:30;padding:20px}#dlg.hidden{display:none}.dbox{background:var(--sf);border-radius:16px;padding:20px;width:100%;max-width:340px}#dmsg{font-size:17px;margin-bottom:12px}.dbox .row{justify-content:flex-end;margin-bottom:0}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:90px;background:var(--tx);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}#toast.on{opacity:1}.pd{background:var(--sf);border:1px solid var(--ln);border-radius:14px;padding:12px;margin:10px 0}.pd h3{margin:0 0 8px;font-size:16px}.ic{display:inline-block;padding:3px 10px;border-radius:999px;background:var(--ch);font-size:13px;margin:2px 4px 2px 0}.ic.k{background:var(--ac);color:var(--at)}.pr{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:var(--sf);border:1px solid var(--ln);border-radius:12px;padding:8px;margin:8px 0;font:inherit;color:inherit}.pr small,.sh b small{font-weight:400;color:var(--mu)}#cand{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:25;display:flex;align-items:flex-end;justify-content:center}#cand.hidden{display:none}.cbox{background:var(--sf);border-radius:16px 16px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));width:100%;max-width:640px;max-height:80vh;overflow:auto}#al{position:fixed;top:0;left:0;right:0;z-index:40;background:var(--ac);color:var(--at);padding:calc(10px + env(safe-area-inset-top,0px)) 14px 12px;display:flex;flex-direction:column;gap:6px;font-weight:700}#al.hidden{display:none}#al .btn{align-self:flex-end;background:var(--at);color:var(--ac)}#tb{position:fixed;left:14px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:8;display:flex;flex-direction:column;gap:6px}.tbp{border:0;border-radius:999px;background:var(--tx);color:var(--bg);padding:10px 14px;font:inherit;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.25)}.tbp b{font-variant-numeric:tabular-nums}
+.hidden{display:none}
+#mn{position:fixed;inset:0;z-index:25}#mn.hidden{display:none}.mnbg{position:absolute;inset:0;width:100%;height:100%;border:0;padding:0;background:rgba(0,0,0,.4)}.mnp{position:absolute;left:0;top:0;bottom:0;width:80%;max-width:320px;background:var(--bg);padding:calc(16px + env(safe-area-inset-top,0px)) 16px 16px;display:flex;flex-direction:column;gap:10px;overflow:auto;box-shadow:2px 0 14px rgba(0,0,0,.25)}.mnh{font-weight:700;font-size:18px;margin-bottom:4px}#app{touch-action:pan-x pan-y}.grid.c3{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.c3 .nm{font-size:12px;padding:6px 7px;line-height:1.35}.c3 .ck{transform:scale(.85)}#shb{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center}#shb.hidden{display:none}.shp{position:relative;width:88%;max-width:420px;max-height:80vh;overflow:auto;background:var(--bg);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}.mnl{margin-top:10px;font-size:14px;color:var(--mu)}.sw{display:flex;flex-wrap:wrap;gap:12px;padding:4px 2px}.swb{width:38px;height:38px;border-radius:50%;border:0;padding:0}.swb.on{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--tx)}.nb{--hand:'Yomogi','Zen Kurenaido','Hiragino Maru Gothic ProN','Yu Gothic',sans-serif;--pp:#fffdf5;--pg:#bfdbe6;--cd:#fffefa;--ci:#3a2e28;--tp:rgba(255,222,110,.85);--hl:var(--ac)}
+@supports (color:color-mix(in srgb,red,blue)){.nb{--hl:color-mix(in srgb,var(--ac) 70%,transparent)}.nb .dn,.nb .ins{color:color-mix(in srgb,var(--ac) 50%,var(--tx))}}
+@media (prefers-color-scheme:dark){:root.nb:not([data-theme="light"]){--pp:#2a2b2e;--pg:#3d4a54;--cd:#f4efe6}}
+:root.nb[data-theme="dark"]{--pp:#2a2b2e;--pg:#3d4a54;--cd:#f4efe6}
+.nb body{font-family:var(--hand);background-color:var(--pp);background-image:linear-gradient(var(--pg) 1px,transparent 1px),linear-gradient(90deg,var(--pg) 1px,transparent 1px);background-size:24px 24px;background-position:12px 6px}
+.nb header{background:var(--pp)}
+.nb .btn,.nb input,.nb textarea{font-family:var(--hand)}
+.nb .chip{background:none;border-radius:4px;font-size:16px;opacity:.75}
+.nb .chip.on{opacity:1;color:var(--tx);background:linear-gradient(transparent 52%,var(--hl) 52%,var(--hl) 92%,transparent 92%)}
+.nb .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 18px;padding:14px 6px 20px}.nb .grid.c3{grid-template-columns:repeat(3,minmax(0,1fr));gap:22px 10px}.nb .grid .card{min-width:0}
+.nb .grid .card:not(.dc){overflow:visible;border:0;border-radius:2px;padding:8px 8px 0;background:var(--cd);color:var(--ci);text-align:center;box-shadow:0 4px 9px rgba(0,0,0,.28);transform:rotate(var(--r,0deg))}
+.nb .grid .card:nth-child(4n+1){--r:-2.4deg}.nb .grid .card:nth-child(4n+2){--r:1.8deg}.nb .grid .card:nth-child(4n+3){--r:1.2deg}.nb .grid .card:nth-child(4n+4){--r:-1.6deg}
+.nb .grid .card:not(.dc) .im{border-radius:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
+.nb .grid .card:not(.dc) .nm{font-weight:400;font-size:17px;line-height:1.25;height:44px;display:flex;align-items:center;justify-content:center;text-align:center;padding:0 2px;overflow:hidden;overflow-wrap:anywhere}
+.nb .grid.c3 .card:not(.dc) .nm{font-size:12px;height:34px;padding:0}
+.nb .grid .card:not(.dc):nth-child(odd)::before{content:"";position:absolute;top:-9px;left:50%;width:18px;height:18px;margin-left:-9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffa392,#d63a2f 58%,#98231b);box-shadow:0 4px 5px rgba(0,0,0,.4);z-index:2}
+.nb .grid .card:not(.dc):nth-child(even)::before,.nb .hero::before{content:"";position:absolute;top:-12px;left:50%;width:70px;height:24px;margin-left:-35px;background:var(--tp);transform:rotate(-5deg);box-shadow:0 1px 2px rgba(0,0,0,.18);clip-path:polygon(0 8%,4% 0,8% 10%,12% 0,100% 0,96% 50%,100% 100%,10% 100%,6% 90%,2% 100%,0 90%,3% 50%);z-index:2}
+.nb main h1{font-weight:400;font-size:30px;line-height:48px;transform:rotate(-1deg);text-decoration:underline wavy var(--ac);text-underline-offset:8px;text-decoration-thickness:2px}
+.nb main:has(.grab) label{display:inline-block;font-size:21px;line-height:48px;color:var(--tx);margin:16px 0 0;padding:0 6px;background:linear-gradient(transparent 55%,var(--hl) 55%,var(--hl) 90%,transparent 90%)}
+.nb .il{font-size:18px;min-height:40px;align-items:flex-end;padding:6px 0;border-bottom:0}.nb .il span{flex:1;display:flex;align-items:flex-end;min-width:0}.nb .il span::after{content:"";flex:1;min-width:12px;margin:0 8px 6px;border-bottom:2px dotted rgba(128,128,128,.55)}
+.nb .sp{font-size:18px}
+.nb .no{background:none;border:2px solid var(--tx);color:var(--tx);border-radius:52% 48% 55% 45%;transform:rotate(-5deg);line-height:22px}
+.nb .hero{display:block;aspect-ratio:auto;width:62%;margin:18px auto 6px;padding:8px 8px 36px;background:var(--cd);border-radius:2px;overflow:visible;box-shadow:0 4px 9px rgba(0,0,0,.28);transform:rotate(-2deg)}
+.nb .hero img{position:static;width:100%;height:auto;aspect-ratio:1;object-fit:cover}
+.qw{position:relative;flex:1;min-width:0}.qw input{padding:7px 66px 7px 11px}#q::-webkit-search-cancel-button{display:none}.chip.qt{position:absolute;right:5px;top:50%;transform:translateY(-50%);font-size:13px;padding:4px 10px;line-height:1.3}</style>
+</head>
+<body>
+<header id="hd"></header>
+<main id="app"></main>
+<div id="bar"></div>
+<button class="fab" data-a="add" aria-label="レシピを追加">＋</button>
+<div id="cand" class="hidden"></div><div id="al" class="hidden"></div><div id="tb"></div><div id="toast"></div><div id="dlg" class="hidden"><div class="dbox"><div id="dmsg"></div><input id="din" class="hidden"><div class="row"><button class="btn" data-dl="0">いいえ</button><button class="btn p" data-dl="1">はい</button></div></div></div>
+<input type="file" id="imp" accept="application/json,.json" class="hidden">
+<datalist id="units"><option value="g"><option value="ml"><option value="個"><option value="本"><option value="枚"><option value="切れ"><option value="片"><option value="袋"><option value="パック"><option value="缶"><option value="丁"><option value="束"><option value="カップ"><option value="大さじ"><option value="小さじ"><option value="少々"><option value="適量"></datalist>
+<script>
+var $=function(s){return document.querySelector(s)};
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var S={R:[],cats:[],shop:[],order:[],plan:null,pdays:7,pcats:null,ptab:'plan',fsel:[],fmode:'exact',stk:[],ci:0,cl:[],selSv:2,q:'',qm:'n',cat:'',fav:false,v:'list',cur:null,sel:{},selOn:false,ro:false,sv:2,ed:null};
+var DEF=['主菜','副菜','汁物','お菓子','主食'],FM={'小さじ':1,'大さじ':3,'カップ':40};
+var mode='local',col=null,assets=null,dl=null,LS='recipes_v2',T={},AC=null,drag=null,lp=false,lpT=0,lpX=0,lpY=0,sT=0;
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function ordOf(r){return r.ord!=null?r.ord:-(r.updated||0)}
+function sortR(){var m={};S.order.forEach(function(id,i){m[id]=i});S.R.sort(function(a,b){var ia=m[a.id],ib=m[b.id];if(ia!==undefined&&ib!==undefined)return ia-ib;if(ia===undefined&&ib===undefined)return(b.updated||0)-(a.updated||0);return ia===undefined?-1:1})}
+function allCats(){var s=DEF.slice();S.cats.concat(S.R.map(function(r){return r.cat})).forEach(function(c){if(c&&s.indexOf(c)<0)s.push(c)});return s}
+function toast(t){var e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove('on')},2200)}
+function fail(){toast('保存に失敗しました')}
+var dcb=null,pend=false,hold=0,shold=0;
+function ask(msg,cb,inp,yes,no){$('#dmsg').textContent=msg;var i=$('#din');i.classList.toggle('hidden',!inp);i.value='';$('[data-dl="1"]').textContent=yes||'はい';$('[data-dl="0"]').textContent=no||'いいえ';dcb=cb;$('#dlg').classList.remove('hidden');if(inp)setTimeout(function(){i.focus()},50)}
+function norm(r){
+  if(typeof r.ingredients==='string'){r.legacy=r.ingredients;delete r.ingredients}
+  if(!Array.isArray(r.ings))r.ings=[];
+  if(typeof r.steps==='string')r.steps=r.steps.split(/\n+/).filter(Boolean).map(function(t){return{t:t,m:0}});
+  if(!Array.isArray(r.steps))r.steps=[];
+  if(!r.cat)r.cat=(r.tags&&r.tags[0])||'';
+  r.serv=r.serv||2;r.photo=r.photo||'';r.memo=r.memo||'';r.name=r.name||'';return r;
+}
+function lsLoad(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch(e){return{}}}
+function lsLegacy(){try{return JSON.parse(localStorage.getItem('recipes_v1')||'[]')}catch(e){return[]}}
+function lsSave(){try{localStorage.setItem(LS,JSON.stringify({r:S.R,c:S.cats,s:S.shop,o:S.order,p:S.plan,pd:S.pdays,pc:S.pcats}))}catch(e){}}
+function persist(r){var i=S.R.findIndex(function(x){return x.id===r.id});if(i<0)S.R.push(r);else S.R[i]=r;sortR();if(mode==='cloud')col.doc(r.id).set(r).catch(fail);else lsSave()}
+function removeR(id){S.R=S.R.filter(function(x){return x.id!==id});if(mode==='cloud')col.doc(id).delete().catch(fail);else lsSave()}
+function saveSet(){shold=Date.now()+4000;if(mode==='cloud'){pend=true;clearTimeout(sT);sT=setTimeout(function(){col.doc('_settings').set({cats:S.cats,shop:S.shop,order:S.order,plan:S.plan||null,pdays:S.pdays,pcats:S.pcats||null}).then(function(){pend=false}).catch(function(){pend=false;fail()})},300)}else lsSave()}
+var DICT=['にんじん/人参/ニンジン/キャロット','玉ねぎ/たまねぎ/玉葱/タマネギ/オニオン','じゃがいも/ジャガイモ/馬鈴薯/じゃが芋/ポテト','さつまいも/サツマイモ/薩摩芋/さつま芋','里芋/さといも/サトイモ/里いも','大根/だいこん/ダイコン','かぶ/蕪/カブ','ごぼう/牛蒡/ゴボウ','れんこん/蓮根/レンコン','長ねぎ/ねぎ/ネギ/葱/長葱/白ねぎ','小ねぎ/こねぎ/万能ねぎ/青ねぎ','キャベツ/きゃべつ/甘藍','白菜/はくさい/ハクサイ','ほうれん草/ほうれんそう/ホウレンソウ','小松菜/こまつな/コマツナ','チンゲン菜/青梗菜/ちんげんさい/チンゲンサイ','水菜/みずな/ミズナ','春菊/しゅんぎく/シュンギク','ブロッコリー','カリフラワー','トマト/とまと','ミニトマト/プチトマト','きゅうり/キュウリ/胡瓜','なす/ナス/茄子/なすび','ピーマン','パプリカ','かぼちゃ/カボチャ/南瓜','ズッキーニ','オクラ','ししとう/シシトウ/獅子唐','とうもろこし/トウモロコシ/コーン/玉蜀黍','枝豆/えだまめ/エダマメ','さやえんどう/絹さや/きぬさや/サヤエンドウ','いんげん/インゲン/さやいんげん','もやし/モヤシ','にら/ニラ/韮','にんにく/ニンニク/大蒜/ガーリック','しょうが/ショウガ/生姜/ジンジャー','みょうが/ミョウガ/茗荷','大葉/しそ/シソ/紫蘇/おおば','パセリ','セロリ','アスパラガス/アスパラ','しいたけ/シイタケ/椎茸','しめじ/シメジ','えのき/エノキ/えのきたけ/エノキタケ/榎茸','まいたけ/マイタケ/舞茸','エリンギ','マッシュルーム','わかめ/ワカメ/若布','昆布/こんぶ/コンブ','のり/海苔/ノリ/焼きのり','豆腐/とうふ/トウフ','厚揚げ/あつあげ/アツアゲ','油揚げ/あぶらあげ/アブラアゲ/油あげ','納豆/なっとう/ナットウ','こんにゃく/コンニャク/蒟蒻','卵/たまご/タマゴ/玉子','牛乳/ぎゅうにゅう/ミルク','豚肉/ぶたにく/ブタ肉','鶏肉/とりにく/鳥肉/トリ肉','牛肉/ぎゅうにく','ひき肉/挽き肉/挽肉/ひきにく/ミンチ','鶏むね肉/鶏胸肉/とりむね肉/鶏ムネ肉','鶏もも肉/鶏腿肉/とりもも肉/鶏モモ肉','ベーコン','ウインナー/ウィンナー/ソーセージ','ハム','鮭/シャケ/サーモン','さば/サバ/鯖','あじ/アジ/鯵','ぶり/ブリ/鰤','たら/タラ/鱈','えび/エビ/海老','いか/イカ/烏賊','たこ/タコ/蛸','あさり/アサリ/浅蜊','ツナ/ツナ缶','バター','チーズ','砂糖/さとう/サトウ/上白糖','塩/しお/食塩','しょうゆ/醤油/しょう油/ショウユ','みそ/味噌/ミソ','酢/お酢','みりん/味醂/ミリン','酒/料理酒/日本酒','サラダ油/植物油','ごま油/ゴマ油/胡麻油','オリーブオイル/オリーブ油','小麦粉/こむぎこ/薄力粉','片栗粉/かたくりこ','パン粉/ぱんこ','米/こめ/お米/白米','ご飯/ごはん/ゴハン/ライス','パスタ/スパゲッティ/スパゲティ','うどん/ウドン','そば/蕎麦/ソバ','レモン/檸檬','りんご/リンゴ/林檎','バナナ','いちご/イチゴ/苺','みかん/ミカン/蜜柑','ケチャップ/トマトケチャップ','マヨネーズ/マヨ','こしょう/コショウ/胡椒/ペッパー','カレー粉/カレーパウダー','カレールウ/カレールー','コンソメ/顆粒コンソメ/洋風だし','だし/出汁/ダシ/和風だし/だしの素/顆粒だし','鶏ガラスープの素/鶏がらスープの素/鶏ガラスープ/鶏がらスープ','ごま/ゴマ/胡麻','はちみつ/ハチミツ/蜂蜜','わさび/ワサビ/山葵','からし/辛子/カラシ','トマト缶/ホールトマト/トマト水煮','生クリーム/ホイップクリーム','ヨーグルト','アボカド','ゴーヤ/にがうり/苦瓜/ニガウリ','レタス','サニーレタス','ベビーリーフ'];
+function nk(s){s=String(s==null?'':s).normalize('NFKC').toLowerCase().replace(/[\s・()（）]/g,'');return s.replace(/[\u30a1-\u30f6]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-96)})}
+var SYN={},GR=DICT.map(function(g){var a=g.split('/'),c=nk(a[0]);a.forEach(function(v){SYN[nk(v)]=c});return{v:a,k:a.map(nk),c:c}});
+function canon(n){var k=nk(n);return SYN[k]||k}
+var sgIn=null,sgT=0;
+function pastNames(){var s={},a=[];S.R.forEach(function(r){r.ings.forEach(function(i){var n=(i.n||'').trim();if(n&&!s[n]){s[n]=1;a.push(n)}})});return a}
+function suggest(q){var t=q.trim(),k=nk(t);if(!k)return[];var ck=canon(t),past=pastNames(),out=[],seen={};function add(n){if(n&&n!==t&&!seen[n]){seen[n]=1;out.push(n)}}past.forEach(function(n){var a=nk(n),c=canon(n);if(a.indexOf(k)>=0||c.indexOf(ck)>=0)add(n)});GR.forEach(function(g){if(g.k.some(function(x){return x.indexOf(k)>=0})&&!past.some(function(n){return canon(n)===g.c}))add(g.v[0])});return out.slice(0,6)}
+function hideSg(){var e=$('#sg');if(e)e.remove()}
+function showSg(){hideSg();if(!sgIn||!document.contains(sgIn))return;var l=suggest(sgIn.value);if(!l.length)return;var row=sgIn.closest('.ir');if(!row)return;var el=document.createElement('div');el.id='sg';el.className='chips';el.innerHTML=l.map(function(n){return'<button class="chip" data-sg="'+esc(n)+'">'+esc(n)+'</button>'}).join('');row.insertAdjacentElement('afterend',el)}
+/* amounts */
+function pa(s){s=String(s).trim().replace(/[０-９]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-65248)}).replace(/[／⁄]/g,'/').replace(/[．。]/g,'.');if(!s)return'';var G={'½':.5,'¼':.25,'¾':.75,'⅓':1/3,'⅔':2/3,'⅙':1/6,'⅚':5/6,'⅛':.125},g=s.slice(-1);if(G[g]!==undefined)return(parseFloat(s.slice(0,-1))||0)+G[g];var m=s.match(/^(?:(\d+)\s+)?(\d+)\/(\d+)$/);if(m&&+m[3])return(+m[1]||0)+m[2]/m[3];var n=parseFloat(s);return isNaN(n)?'':n}
+function fr(n,q){var x=Math.round(n*q),w=Math.floor(x/q),r=x-w*q,g=['','¼','½','¾'][r*4/q];return x===0?'0':(w?w:'')+g}
+function spoon(t,u){
+  if(u==='カップ')return fr(t/40,4)+'カップ';
+  if(t<0.125)return'少々';
+  if(t>=40)return fr(t/40,4)+'カップ';
+  if(t<2.75)return'小さじ'+fr(t,4);
+  var h=Math.round(t*2)/2,b=Math.floor(h/3+1e-9),r=h-b*3;
+  return'大さじ'+b+(r?'と小さじ'+fr(r,2):'');
+}
+var GL=[[.125,'⅛'],[1/6,'⅙'],[.25,'¼'],[1/3,'⅓'],[.375,'⅜'],[.5,'½'],[.625,'⅝'],[2/3,'⅔'],[.75,'¾'],[5/6,'⅚'],[.875,'⅞']];
+function frAuto(n){var w=Math.floor(n+1e-9),r=n-w;if(r<0.06)return w===0?'0':String(w);if(r>0.94)return String(w+1);var b=null,bd=1;GL.forEach(function(g){var d=Math.abs(g[0]-r);if(d<bd){bd=d;b=g}});return bd<0.04?(w?w:'')+b[1]:String(Math.round(n*10)/10)}
+function fstr(n){if(n===''||n==null)return'';var w=Math.floor(n+1e-9),r=n-w;if(r<0.005)return String(w);var ds=[2,3,4,6,8];for(var k=0;k<ds.length;k++){var d=ds[k],x=Math.round(r*d);if(x>0&&x<d&&Math.abs(r*d-x)<0.01)return(w?w+' ':'')+x+'/'+d}return String(Math.round(n*100)/100)}
+function fmt(a,u){
+  if(a===''||a==null||isNaN(a))return u||'';
+  if(FM[u])return spoon(a*FM[u],u);
+  if(u==='g'||u==='ml'||u==='kg'||u==='cc')return(a>=10?Math.round(a):Math.round(a*10)/10)+u;
+  return frAuto(a)+(u||'');
+}
+function sdisp(it){return it.u==='tsp'?(it.a===''?'':spoon(it.a,'小さじ')):fmt(it.a,it.u)}
+function parseLegacy(t){var out=[];String(t||'').split(/[\n、,，]+/).forEach(function(line){line=line.normalize('NFKC').trim();if(!line)return;var m=line.match(/^(.+?)[\s:：]*(大さじ|小さじ|カップ)\s*([\d./\s]*)$/);if(m){out.push({n:m[1].trim(),a:pa(m[3]),u:m[2]});return}m=line.match(/^(.+?)[\s:：]*([\d./]+(?:\s+[\d./]+)?)\s*([^\d\s./]*)$/);if(m){out.push({n:m[1].trim(),a:pa(m[2]),u:m[3].trim()});return}m=line.match(/^(.+?)[\s:：]+(少々|適量|適宜|お好みで)$/);if(m){out.push({n:m[1].trim(),a:'',u:m[2]});return}out.push({n:line,a:'',u:''})});return out}
+function addShop(ids,sv){var cnt=0;
+  ids.forEach(function(id){var r=S.R.find(function(x){return x.id===id});if(!r)return;
+    (r.ings.length?r.ings:parseLegacy(r.legacy)).forEach(function(i){var n=(i.n||'').trim();if(!n)return;cnt++;var u=i.u||'',a=i.a;if(a!==''&&a!=null&&sv&&r.serv)a=a*sv/r.serv;
+      if(FM[u]&&a!==''){a=a*FM[u];u='tsp'}
+      var it=S.shop.find(function(x){return canon(x.n)===canon(n)&&x.u===u});
+      if(it){if(a!=='')it.a=it.a===''?a:it.a+a}else S.shop.push({n:n,a:a,u:u,done:false})})});S.lastAdd=cnt;
+  saveSet();
+}
+/* timers */
+function mmss(ms){var s=Math.ceil(ms/1000),m=Math.floor(s/60);s=s%60;return(m<10?'0':'')+m+':'+(s<10?'0':'')+s}
+function tmHTML(i){
+  var m=S.cur.steps[i].m;if(!m)return'';var k=S.cur.id+':'+i,t=T[k];
+  if(!t)return'<button class="btn sm" data-ta="s" data-ti="'+i+'">⏱ '+m+'分 スタート</button>';
+  if(t.done)return'<b class="dn">⏰ 時間です！</b> <button class="btn sm" data-ta="r" data-ti="'+i+'">リセット</button>';
+  var left=t.run?Math.max(0,t.end-Date.now()):t.left;
+  return'<b class="cd" id="cd'+i+'">'+mmss(left)+'</b>'+(t.run?'<button class="btn sm" data-ta="p" data-ti="'+i+'">停止</button>':'<button class="btn sm" data-ta="g" data-ti="'+i+'">再開</button>')+' <button class="btn sm" data-ta="r" data-ti="'+i+'">リセット</button>';
+}
+function refTm(i){var e=document.getElementById('tm'+i);if(e)e.innerHTML=tmHTML(i)}
+function beep(){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.resume)AC.resume();[0,.35,.7].forEach(function(t){var o=AC.createOscillator(),g=AC.createGain();o.frequency.value=880;g.gain.value=.2;o.connect(g);g.connect(AC.destination);o.start(AC.currentTime+t);o.stop(AC.currentTime+t+.2)})}catch(e){}}
+function tmAct(a,i){
+  var k=S.cur.id+':'+i,t=T[k],m=S.cur.steps[i].m;
+  if(a==='s'){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)()}catch(e){}T[k]={left:m*60000,end:Date.now()+m*60000,run:true,done:false,rid:S.cur.id,rn:S.cur.name,si:i+1,m:m};askNotif();wake()}
+  else if(a==='p'&&t){t.left=Math.max(0,t.end-Date.now());t.run=false}
+  else if(a==='g'&&t){t.end=Date.now()+t.left;t.run=true;wake()}
+  else if(a==='r'){delete T[k];ALM=ALM.filter(function(x){return x!==k});showAl()}
+  saveT();refTm(i);tb();
+}
+var TL='timers_v1',ALM=[],almT=0,almN=0,wl=null,tbK='';
+function saveT(){try{localStorage.setItem(TL,JSON.stringify(T))}catch(e){}}
+function loadT(){try{var o=JSON.parse(localStorage.getItem(TL)||'{}'),now=Date.now();Object.keys(o).forEach(function(k){var t=o[k];if(!t)return;if(t.run&&t.end<=now){t.run=false;t.done=true;ALM.push(k)}else if(t.done&&ALM.indexOf(k)<0)ALM.push(k);T[k]=t})}catch(e){}}
+function askNotif(){try{if(window.Notification&&Notification.permission==='default')Notification.requestPermission()}catch(e){}}
+function wake(){try{if(navigator.wakeLock&&!wl)navigator.wakeLock.request('screen').then(function(l){wl=l;l.addEventListener('release',function(){wl=null})}).catch(function(){})}catch(e){}}
+function unwake(){try{if(wl){wl.release();wl=null}}catch(e){}}
+function running(){return Object.keys(T).filter(function(k){return T[k]&&T[k].run})}
+function showAl(){var el=$('#al');if(!ALM.length){el.classList.add('hidden');el.innerHTML='';clearInterval(almT);return}el.classList.remove('hidden');el.innerHTML=ALM.map(function(k){var t=T[k]||{};return'<div>⏰ '+esc(t.rn||'')+'（手順'+(t.si||'')+'）の時間です</div>'}).join('')+'<button class="btn p" data-a="alok">止める</button>'}
+function alarm(t){beep();try{if(navigator.vibrate)navigator.vibrate([400,200,400,200,400])}catch(e){}try{if(window.Notification&&Notification.permission==='granted')new Notification('⏰ タイマー終了',{body:(t.rn||'')+'（手順'+t.si+'）の時間です'})}catch(e){}showAl();clearInterval(almT);almN=0;almT=setInterval(function(){if(!ALM.length||++almN>20){clearInterval(almT);return}beep();try{if(navigator.vibrate)navigator.vibrate([300,150,300])}catch(e){}},3000)}
+function tb(){
+  var el=$('#tb'),ks=running().filter(function(k){var t=T[k];return!(S.v==='detail'&&S.cur&&t.rid===S.cur.id)}),hide=S.selOn||S.ro||S.v==='edit'||!ks.length,key=hide?'':ks.join(',');
+  if(key!==tbK){tbK=key;el.innerHTML=hide?'':ks.slice(0,2).map(function(k,n){var t=T[k];return'<button class="tbp" data-tk="'+esc(k)+'"><b id="tbt'+n+'">'+mmss(Math.max(0,t.end-Date.now()))+'</b> '+esc(t.rn||'')+'・手順'+t.si+'</button>'}).join('')}
+  if(!hide)ks.slice(0,2).forEach(function(k,n){var e=document.getElementById('tbt'+n);if(e)e.textContent=mmss(Math.max(0,T[k].end-Date.now()))})
+}
+function tick(){
+  var now=Date.now(),n=0;
+  Object.keys(T).forEach(function(k){var t=T[k];if(!t||!t.run)return;var left=t.end-now;
+    if(left<=0){t.run=false;t.done=true;saveT();if(ALM.indexOf(k)<0)ALM.push(k);alarm(t);if(S.v==='detail'&&S.cur&&t.rid===S.cur.id)refTm(t.si-1)}
+    else{n++;if(S.v==='detail'&&S.cur&&t.rid===S.cur.id){var e=document.getElementById('cd'+(t.si-1));if(e)e.textContent=mmss(left)}}});
+  tb();if(!n)unwake()
+}
+setInterval(tick,250);
+document.addEventListener('visibilitychange',function(){if(!document.hidden){tick();if(running().length)wake()}});
+document.addEventListener('pointerdown',function(){try{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}},{passive:true});
+/* render */
+function render(){
+  var hd=$('#hd'),ap=$('#app');$('#bar').innerHTML='';
+  document.querySelector('.fab').classList.toggle('hidden',!(S.v==='list'&&!S.ro&&!S.selOn));
+  if(S.v==='list')rList(hd);else if(S.v==='detail')rDetail(hd,ap);else if(S.v==='edit')rEdit(hd,ap);else if(S.v==='log')rLog(hd,ap);else if(S.v==='plan')rPlan(hd,ap);else rShop(hd,ap);
+}
+function match(r){
+  if(S.fav&&!r.fav)return false;if(S.cat&&r.cat!==S.cat)return false;
+  var k=S.q.trim();if(!k)return true;
+  if(S.qm==='n')return nk(r.name).indexOf(nk(k))>=0;
+  var keys=r.ings.map(function(i){return[nk(i.n),canon(i.n)]}),lg=nk(r.legacy||'');
+  return k.split(/[\s、,，]+/).filter(Boolean).every(function(w){var ws=[nk(w),canon(w)];return keys.some(function(ks){return ks.some(function(x){return ws.some(function(y){return y&&x.indexOf(y)>=0})})})||(lg&&ws.some(function(y){return y&&lg.indexOf(y)>=0}))});
+}
+function img(r){return r.photo?'<img loading="lazy" src="/_blob/'+r.photo+'">':'🍽'}
+function topBar(){
+  return'<div class="top" style="gap:8px"><button class="btn sm" data-a="menu">☰</button>'+(S.selOn?'<h1 style="flex:1">'+Object.keys(S.sel).length+'件選択中</h1>':'<div class="qw"><input id="q" type="search" placeholder="'+(S.qm==='n'?'料理名で検索':'食材（複数可）')+'" value="'+esc(S.q)+'"><button class="chip qt" data-qm="'+(S.qm==='n'?'i':'n')+'" aria-label="検索の種類を切り替え">'+(S.qm==='n'?'料理名':'食材')+'</button></div>')+'<div class="gap">'+(typeof rPlan==='function'?'<button class="btn sm" data-a="plan">献立</button>':'')+'<button class="btn sm" data-a="shop">🛒 '+S.shop.length+'</button></div></div>'}
+S.cols=2;try{if(+localStorage.getItem('rcols')===3)S.cols=3}catch(e){}
+function setCols(n){S.cols=n;try{localStorage.setItem('rcols',n)}catch(e){}
+  var g=document.querySelector('#app .grid');if(!g){rGrid();return}
+  var cs=[].slice.call(g.children),vh=window.innerHeight,f=cs.map(function(c){return c.getBoundingClientRect()}),ai=-1,i;
+  for(i=0;i<f.length;i++){if(f[i].top<=vh/2&&f[i].bottom>=vh/2){ai=i;break}}
+  if(ai<0){for(i=0;i<f.length;i++){if(f[i].bottom>0){ai=i;break}}}
+  var cy=ai>=0?f[ai].top+f[ai].height/2:0;
+  g.classList.toggle('c3',n===3);
+  if(ai>=0){var r=cs[ai].getBoundingClientRect();window.scrollBy(0,r.top+r.height/2-cy)}
+  var mv=[];
+  cs.forEach(function(c,k){var a=f[k],b=c.getBoundingClientRect();if(!b.width||b.bottom<-200||b.top>vh+200)return;c.style.transition='none';c.style.transformOrigin='0 0';c.style.transform='translate('+(a.left-b.left)+'px,'+(a.top-b.top)+'px) scale('+a.width/b.width+','+a.height/b.height+')';mv.push(c)});
+  void g.offsetWidth;
+  mv.forEach(function(c){c.style.transition='transform .28s cubic-bezier(.2,.8,.2,1)';c.style.transform=''});
+  setTimeout(function(){mv.forEach(function(c){c.style.transition='';c.style.transformOrigin=''})},340)}
+var pd0=0,pz=false;
+function pdist(t){return Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY)}
+document.addEventListener('touchstart',function(e){if(e.touches.length===2&&S.v==='list'&&!S.ro&&!drag){clearTimeout(lpT);lpT=0;pd0=pdist(e.touches);pz=pd0>0}else if(e.touches.length>2)pz=false},{passive:true});
+document.addEventListener('touchmove',function(e){if(!pz||e.touches.length!==2)return;e.preventDefault();var r=pdist(e.touches)/pd0;if(r>1.3&&S.cols!==2){setCols(2);pd0=pdist(e.touches)}else if(r<0.75&&S.cols!==3){setCols(3);pd0=pdist(e.touches)}},{passive:false});
+document.addEventListener('touchend',function(e){if(pz){lp=Date.now()+400;if(e.touches.length<2)pz=false}},{passive:true});
+function rList(hd){
+  hd.innerHTML=S.ro?'<div class="top"><h1>並べ替え</h1><button class="btn p sm" data-a="ro">完了</button></div><div class="note">カードを長押ししてから動かすと、順番を変えられます（画面は普通にスクロールできます）</div>':
+  topBar()+
+  '<div class="chips"><button class="chip'+(S.fav?' on':'')+'" data-a="fav0">★</button><button class="chip'+(!S.cat?' on':'')+'" data-fcat="">すべて</button>'+
+  allCats().map(function(c){return'<button class="chip'+(S.cat===c?' on':'')+'" data-fcat="'+esc(c)+'">'+esc(c)+'</button>'}).join('')+'</div>';
+  if(S.selOn){var n=Object.keys(S.sel).length;$('#bar').innerHTML='<div class="sb"><div class="sv"><button class="btn" data-sv2="-1">－</button><b>'+S.selSv+'人前</b><button class="btn" data-sv2="1">＋</button></div><button class="btn p" data-a="sadd">買い物リストへ</button><button class="btn" data-a="scan">取消</button></div>'}
+  rGrid();
+}
+function foot(){return'<div class="note">'+(mode==='cloud'?'アカウントに保存中です。端末を変えても同じアカウントで開けば引き継がれます。':'このブラウザ内にのみ保存中です。')+'</div>'}
+var ACC=['#f6bfa8','#f4bccf','#d0c1f0','#b0d3f2','#b2e0cb','#f4e3a0','#e5d2b8'];
+function isDark(){var t=document.documentElement.getAttribute('data-theme');return t==='dark'||(t!=='light'&&window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches)}
+function setAcc(i){S.acc=i;try{localStorage.setItem('racc',i)}catch(e){}var el=document.getElementById('accs');if(!el){el=document.createElement('style');el.id='accs';document.head.appendChild(el)}var c=ACC[i];el.textContent=c?':root{--ac:'+c+';--at:#3a2e28}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ac:'+c+';--at:#1c1816}}:root[data-theme="dark"]{--ac:'+c+';--at:#1c1816}':''}
+function setThm(n){S.thm=n;try{localStorage.setItem('rthm',n)}catch(e){}document.documentElement.classList.toggle('nb',!!n);if(n&&!document.getElementById('hfont')){var l=document.createElement('link');l.id='hfont';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Yomogi&display=swap';document.head.appendChild(l)}}
+S.thm=0;try{if(localStorage.getItem('rthm')==='1')setThm(1)}catch(e){}
+S.acc=-1;try{var ai=localStorage.getItem('racc');if(ai!==null&&ACC[+ai])setAcc(+ai)}catch(e){}
+function menuShow(){var e=$('#mn');if(!e){e=document.createElement('div');e.id='mn';document.body.appendChild(e)}e.innerHTML='<button class="mnbg" data-a="mclose"></button><div class="mnp"><div class="mnh">メニュー</div><button class="btn" data-a="exp">バックアップを書き出す</button><button class="btn" data-a="imp">バックアップを読み込む</button><button class="btn" data-a="ro">レシピの並べ替え</button><button class="btn" data-a="log">バージョン情報（Ver.'+VER+'）</button><div class="mnl">デザイン</div><div class="row" style="margin:0;flex-wrap:nowrap"><button class="btn'+(S.thm?'':' p')+'" style="flex:1" data-thm="0">標準</button><button class="btn'+(S.thm?' p':'')+'" style="flex:1" data-thm="1">手帳風</button></div><div class="mnl">アクセントカラー</div><div class="sw">'+ACC.map(function(c,k){return'<button class="swb'+(S.acc===k?' on':'')+'" data-ac="'+k+'" aria-label="色'+(k+1)+'" style="background:'+c+'"></button>'}).join('')+'</div></div>';e.classList.remove('hidden')}
+function menuHide(){var e=$('#mn');if(e)e.classList.add('hidden')}
+function rGrid(){
+  var ap=$('#app'),L=S.ro?S.R:S.R.filter(match);
+  if(!L.length){ap.innerHTML='<div class="empty">'+(S.R.length?'該当するレシピがありません':'右下の＋からレシピを追加しましょう')+'</div>'+(S.ro?'':foot());return}
+  ap.innerHTML=(S.ro?'<div class="grid">'+L.map(function(r){return'<div class="card dc" data-id="'+r.id+'"><div class="im">'+img(r)+'</div><div class="nm">'+esc(r.name)+'</div></div>'}).join('')+'</div>':
+    '<div class="grid'+(S.cols===3?' c3':'')+'">'+L.map(function(r){return'<button class="card'+(S.sel[r.id]?' sel':'')+'" data-open="'+r.id+'"><div class="im">'+img(r)+'</div><div class="nm">'+(r.fav?'★ ':'')+esc(r.name)+'</div>'+(S.sel[r.id]?'<span class="ck">✓</span>':'')+'</button>'}).join('')+'</div>'+foot());
+}
+function shareText(r){var f=S.sv/r.serv,L=[r.name,'（'+S.sv+'人前）','','【材料】'];
+  r.ings.forEach(function(i){if(!i.n)return;var a=fmt(i.a===''?'':i.a*f,i.u||'');L.push('・'+i.n+(a?' '+a:''))});
+  if(r.legacy)L.push(r.legacy);
+  if(r.steps.length){L.push('','【作り方】');r.steps.forEach(function(x,k){L.push((k+1)+'. '+x.t)})}
+  return L.join('\n')}
+function showShareBox(t){var e=$('#shb');if(!e){e=document.createElement('div');e.id='shb';document.body.appendChild(e)}e.innerHTML='<button class="mnbg" data-a="shx"></button><div class="shp"><div class="mnh">共有テキスト</div><div class="note">下の文章を長押しして全選択し、コピーしてください</div><textarea id="sht" readonly style="min-height:200px">'+esc(t)+'</textarea><button class="btn p" data-a="shx">閉じる</button></div>';e.classList.remove('hidden')}
+function fbCopy(t){var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;opacity:0;top:0';document.body.appendChild(ta);ta.select();var ok=false;try{ok=document.execCommand('copy')}catch(e){}document.body.removeChild(ta);if(ok)toast('コピーしました。LINEやメモに貼り付けてください');else showShareBox(t)}
+function copyTxt(t){try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){toast('コピーしました。LINEやメモに貼り付けてください')},function(){fbCopy(t)});return}}catch(e){}fbCopy(t)}
+function doShare(){copyTxt(shareText(S.cur))}
+function rDetail(hd,ap){
+  var r=S.cur,f=S.sv/r.serv;
+  hd.innerHTML='<div class="top"><button class="btn sm" data-a="back">← 戻る</button><div class="gap"><button class="btn sm" data-a="share">コピー</button><button class="btn sm" data-a="dfav">'+(r.fav?'★':'☆')+'</button></div></div>';
+  ap.innerHTML='<div class="grab"></div>'+(r.photo?'<div class="hero"><img src="/_blob/'+r.photo+'"></div>':'')+'<h1 style="margin:10px 0 2px">'+esc(r.name)+'</h1><div class="note">'+esc(r.cat)+'</div>'+
+    '<label>材料</label><div class="sv"><button class="btn" data-sv="-1">－</button><b>'+S.sv+'人前</b><button class="btn" data-sv="1">＋</button></div>'+
+    r.ings.map(function(i){return'<div class="il"><span>'+esc(i.n)+'</span><b>'+esc(fmt(i.a===''?'':i.a*f,i.u||''))+'</b></div>'}).join('')+
+    (r.legacy?'<div class="note">以前の材料メモ（編集を開くと材料欄に自動で取り込みます。内容を確認して保存してください）</div><pre>'+esc(r.legacy)+'</pre>':'')+
+    '<label>作り方</label>'+r.steps.map(function(s,i){return'<div class="sp"><span class="no">'+(i+1)+'</span><div><div>'+esc(s.t)+'</div><div id="tm'+i+'">'+tmHTML(i)+'</div></div></div>'}).join('')+
+    (r.memo?'<label>メモ</label><pre>'+esc(r.memo)+'</pre>':'')+
+    '<div class="row"><button class="btn d" data-a="del">削除</button><button class="btn p" data-a="edit">編集</button></div>';
+}
+function impParse(t){
+  var L=String(t||'').split(/\r?\n/),sec='',ings=[],steps=[],serv=0,found=false,fb=[];
+  var BU=/^[■□◆◇●○▼▽▲△★☆【\[（(<＜《「『\-–—=＝*＊・･•\s]+/;
+  var SUB=/^[【\[＜<▼▽■□◆◇]/;
+  L.forEach(function(raw){
+    var s=raw.trim();if(!s)return;
+    var n=s.normalize('NFKC');
+    if(/^(https?:\/\/|www\.)/i.test(n)||/^[#＃]/.test(n))return;
+    var h=n.replace(BU,'');
+    if(h.length<=24&&h.indexOf('。')<0){
+      if(/^(材料|ざいりょう|ingredients?)/i.test(h)){sec='i';found=true;var m=h.match(/(\d+)\s*(人|名|皿|食)/);if(m)serv=+m[1];return}
+      if(/^(作り方|つくり方|作りかた|手順|directions?|how to|method)/i.test(h)){sec='s';found=true;return}
+      if(SUB.test(n)&&/^(ポイント|コツ|メモ|注意|チャンネル|sns|bgm|お問い合わせ|お仕事|関連|おすすめ|購入|使用|撮影|音楽|レシピ動画|目次)/i.test(h)){sec='x';return}
+    }
+    if(sec==='i'){
+      if(n.length>40||/^\d{1,2}:\d{2}/.test(n))return;
+      if(SUB.test(n)&&!/\d/.test(n)&&!/(適量|少々|適宜|お好み)/.test(n))return;
+      var x=n.replace(/^[・･•●○◆◇■□▼▽★☆\-–—*＊]+\s*/,'').replace(/^[A-Za-z]\s+(?=\S)/,'').replace(/\([^)]*\)/g,'').replace(/約/g,'').replace(/(\d)\s*と\s*(\d+\/\d+)/g,'$1 $2').replace(/(\d)\s*[~〜]\s*\d+/g,'$1').replace(/[…‥]+|\.{2,}|[:：]/g,' ').trim();
+      if(x)parseLegacy(x).forEach(function(i){if(i.n&&i.n.trim())ings.push(i)});
+    }else if(sec==='s'){
+      var num=/^[①-⑳]/.test(s),st=s.replace(/^[①-⑳]\s*/,'').normalize('NFKC').replace(/^\d{1,2}:\d{2}(?::\d{2})?\s*/,'').trim();
+      var q=st.replace(/^(?:\(\d{1,2}\)|\d{1,2}[).．、:：]|手順\s*\d+\s*[:：.．]?|step\s*\d+\s*[:：.．]?)\s*/i,'');
+      if(q!==st)num=true;
+      st=q.replace(/^[・●○◆◇■□▼▽★☆\-–—*＊]+\s*/,'').trim();
+      if(!st)return;
+      if(!num&&steps.length&&steps.hasNum){steps[steps.length-1].t+=st;return}
+      if(num)steps.hasNum=true;
+      var mm=st.match(/(\d+)(?:\s*[~〜]\s*\d+)?\s*分/);
+      steps.push({t:st,m:mm?+mm[1]:0});
+    }else if(!found&&n.length<=30&&n.indexOf('。')<0){
+      var y=n.replace(BU,'').replace(/\([^)]*\)/g,'').replace(/約/g,'').replace(/[…‥]+|\.{2,}|[:：]/g,' ').trim();
+      if(y){var p=parseLegacy(y)[0];if(p&&p.n&&(p.a!==''||/^(適量|少々)$/.test(p.u)))fb.push(p)}
+    }
+  });
+  if(!found&&fb.length>=2)ings=fb;
+  steps=[].slice.call(steps);
+  return{serv:serv,ings:ings,steps:steps};
+}
+function impUI(){return'<div class="imp">'+(S.imp?'<label>レシピの文章を貼り付け</label><textarea id="itx" style="min-height:150px" placeholder="YouTubeの概要欄など、レシピの文章を貼り付けます。「材料」「作り方」の見出しがあると読み取りやすいです"></textarea><div class="row"><button class="btn" data-a="impx">やめる</button><button class="btn p" data-a="impgo">読み取る</button></div>':'<button class="btn" data-a="yimp">📋 レシピの読み取り</button>')+'</div>'}
+function impApply(R){var d=S.ed,a=d.ings.filter(function(i){return i.n.trim()}),b=d.steps.filter(function(s){return s.t.trim()});
+  if(R.serv&&!a.length)d.serv=R.serv;
+  d.ings=a.concat(R.ings);if(!d.ings.length)d.ings.push({n:'',a:'',u:''});
+  d.steps=b.concat(R.steps);if(!d.steps.length)d.steps.push({t:'',m:0})}
+function rEdit(hd,ap){
+  var d=S.ed;
+  hd.innerHTML='<div class="top"><h1>'+(d.id?'レシピを編集':'レシピを追加')+'</h1></div>';
+  ap.innerHTML=impUI()+(assets?'<div class="ph" id="phb" style="cursor:pointer">'+img(d)+'</div><input type="file" id="pf" accept="image/*" class="hidden"><div class="note" style="text-align:center">'+(d.photo?'写真をタップすると変更できます':'写真の部分をタップして選べます')+'</div>'+(d.photo?'<div class="row"><button class="btn" data-a="pdel">写真を外す</button></div>':''):'<div class="ph">'+img(d)+'</div><div class="note">写真はアカウント保存のときだけ使えます</div>')+
+    '<label>料理名</label><input id="en" value="'+esc(d.name)+'">'+
+    '<label>分類</label><div class="chips" style="flex-wrap:wrap">'+allCats().map(function(c){return'<button class="chip'+(d.cat===c?' on':'')+'" data-ec="'+esc(c)+'">'+esc(c)+'</button>'}).join('')+'<button class="chip" data-ec="+">＋ 追加</button></div>'+
+    '<label>何人前</label><div class="sv"><button class="btn" data-sv="-1">－</button><b>'+d.serv+'人前</b><button class="btn" data-sv="1">＋</button></div>'+
+    '<label>材料（名前・分量・単位）</label>'+(d.legacy?'<div class="note">以前の材料メモ：'+esc(d.legacy)+'</div>':'')+
+    d.ings.map(function(i,n){return'<div class="insw"><button class="ins" data-ii="'+n+'">＋</button></div><div class="ir"><input class="in" autocomplete="off" placeholder="材料名" value="'+esc(i.n)+'"><input class="ia" inputmode="text" placeholder="分量 例:1/2" value="'+esc(fstr(i.a))+'"><input class="iu" list="units" placeholder="単位" value="'+esc(i.u)+'"><button class="btn sm" data-di="'+n+'">✕</button></div>'}).join('')+
+    '<button class="btn sm" data-a="ai">＋ 材料を追加</button>'+
+    '<label>作り方（時間が必要な手順は「分」を入力）</label>'+
+    d.steps.map(function(s,n){return'<div class="insw"><button class="ins" data-is="'+n+'">＋</button></div><div class="sr"><textarea class="st" placeholder="手順'+(n+1)+'">'+esc(s.t)+'</textarea><input class="sm" inputmode="numeric" placeholder="分" value="'+(s.m||'')+'"><button class="btn sm" data-ds="'+n+'">✕</button></div>'}).join('')+
+    '<button class="btn sm" data-a="as">＋ 手順を追加</button>'+
+    '<label>メモ</label><textarea id="em">'+esc(d.memo)+'</textarea>'+
+    '<div class="row"><button class="btn" data-a="cancel">キャンセル</button><button class="btn p" data-a="save">保存</button></div>';
+}
+function rShop(hd,ap){
+  hd.innerHTML='<div class="top"><button class="btn sm" data-a="back">← 戻る</button><h1>買い物リスト</h1></div>';
+  ap.innerHTML=S.shop.length?S.shop.map(function(it,i){return'<button class="sh'+(it.done?' dn2':'')+'" data-si="'+i+'"><i class="cb">'+(it.done?'✓':'')+'</i><span>'+esc(it.n)+'</span><b>'+esc(sdisp(it))+'</b></button>'}).join('')+'<div class="row"><button class="btn" data-a="sdone">チェック済みを削除</button><button class="btn d" data-a="sall">すべて削除</button></div>':'<div class="empty">買い物リストは空です。<br>レシピを長押しで選ぶと、材料を追加できます。</div>';
+}
+function collect(){
+  var d=S.ed;if(!d||!$('#en'))return;d.name=$('#en').value;d.memo=$('#em').value;
+  d.ings=[].map.call(document.querySelectorAll('.ir'),function(r){return{n:r.querySelector('.in').value,a:pa(r.querySelector('.ia').value),u:r.querySelector('.iu').value.trim()}});
+  d.steps=[].map.call(document.querySelectorAll('.sr'),function(r){return{t:r.querySelector('.st').value,m:parseInt(r.querySelector('.sm').value)||0}});
+}
+function shrink(f){return new Promise(function(ok,ng){var im=new Image(),u=URL.createObjectURL(f);im.onload=function(){var s=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(function(b){b?ok(b):ng()},'image/jpeg',.82)};im.onerror=ng;im.src=u})}
+var VER='3.8.0',LOG=[['3.8.0',['検索窓を1段目（☰と🛒の間）に移し、料理名／食材の切り替えボタンを検索窓の中に入れて、レシピ一覧の写真が見えるところを広くした']],['3.7.3',['一覧画面の検索を、虫眼鏡のアイコンから、元の横長の検索窓（料理名／食材の切り替えつき）に戻した']],['3.7.2',['手帳風デザインの詳細画面で、材料の点線が材料名の下に出ていたのを修正（材料名と分量の間をつなぐ点線に戻した）']],['3.7.1',['手帳風デザインの一覧で、2列のとき写真が画面からはみ出す不具合と、3列のときレシピ名が見切れる不具合を修正（レシピ名は2行まで表示）']],['3.7.0',['アクセントカラーをパステルカラーの7色に変更','メニューに「デザイン」を追加。「手帳風」を選ぶと、一覧の写真がチェキ風（テープ・画鋲留め）、文字が手書き風、背景が方眼紙になる（標準に戻すこともできる。選んだデザインは端末に記憶）']],['3.6.0',['メニューに「アクセントカラー」を追加。ボタンや選択中の色を、くすんだ7色から選んで変えられる（選んだ色は端末に記憶）']],['3.5.3',['2列と3列の切り替えをアニメーションで滑らかに表示（各レシピが元の位置から新しい位置へ動く）。切り替え前に画面の中央にあったレシピが、切り替え後も画面の中央付近に残るように調整']],['3.5.2',['共有ボタンを「コピー」ボタンに変更（LINEを直接開けないため）。押すと料理名・分量・手順がコピーされ、LINEやメモに貼り付けられる']],['3.5.1',['詳細画面の共有ボタンを「LINE」ボタンに変更。押すとLINEが開き、送る相手を選んで送れる（開けない場合はコピー）']],['3.5.0',['詳細画面のお気に入り（☆）の横に共有ボタンを追加。料理名・分量・作り方をテキストにして、LINEやメモなどに共有できる（共有画面が開けない環境ではコピーして貼り付け）']],['3.4.0',['検索を虫眼鏡ボタンに変更。タップすると横に広がり、料理名／食材の切り替えボタンを表示','上部の段を整理して、レシピ一覧を広く表示','レシピ一覧で2本の指を広げる／狭めると、横2列と横3列を切り替えられるように（選んだ列数は端末に記憶）']],['3.3.1',['詳細画面のお気に入りボタンを「☆／★」だけの表示に変更','一覧画面の上部にあった「マイレシピ」の文字を削除して、表示を広くした','写真が縦長・横長だと余白ができていた不具合を修正（写真の中心を基準に、枠いっぱいにトリミング）']],['3.3.0',['左上にメニュー（☰）を追加し、バックアップの書き出し・読み込み、バージョン情報、レシピの並べ替えをまとめた','「YouTubeの概要欄から取り込む」を「レシピの読み取り」に名称変更','レシピの登録画面で「写真を選ぶ」ボタンをなくし、写真の部分をタップして選ぶように変更','レシピの詳細画面で「編集」と「削除」の位置を左右入れ替え','「レシピの読み取り」ボタンが「バックアップを読み込む」と干渉し、読み込めなくなる不具合を修正']],['3.2.0',['レシピの追加・編集画面に「YouTubeの概要欄から取り込む」を追加。貼り付けた文章から材料・分量・人数・作り方（時間つき）を読み取り、確認して保存できる']],['3.1.0',['献立の買い物リストで、「○回分」の表示をやめ、食材ごとに必要な分量を合計して表示するように改善（大さじ・小さじは換算して合算）']],['3.0.0',['大型アップデート：レシピから、指定した日数分の献立を自動で作る機能を追加（前日までに使った食材をできるだけ翌日以降も使い回します）','各日の「再抽選」で、前後の日と共通の食材が多いレシピから差し替えられます','手元の食材から作れるレシピを探す機能を追加（完全一致／あと何品で作れるかの部分一致。調味料は自動で除外）','献立から買い物リストを作成（食材ごとの使用回数つき。タップで「家にある・買った」の印）','画面の移動を整理し、「戻る」で元いた画面に戻るように改善']],['2.8.0',['タイマーが、一覧など他の画面に移っても動き続けるように修正（画面下に動作中のタイマーを表示し、タップでそのレシピを開けます）','タイマーが0秒になったとき、画面上部の通知バナー・音・バイブでお知らせ（対応している環境ではシステム通知も表示）','タイマーの状態を端末に保存し、アプリを開き直しても引き継ぐように改善','タイマー動作中は画面が自動で消えないように対応']],['2.7.3',['一覧に戻るときにスクロール位置が戻らないバグを修正（ブラウザの自動スクロール復元と競合していた問題）']],['2.7.2',['詳細画面から一覧に戻ったとき、開く前のスクロール位置に戻るように修正']],['2.7.1',['並べ替え画面でスクロールできないバグを修正（カードを長押ししてからドラッグする操作に変更）','買い物リストの「すべて削除」の不具合が解消したことを確認（調査中の表示を削除）']],
+['2.7.0',['更新履歴の画面を追加（一覧の一番下のバージョン表示から開けます）']],
+['2.6.0',['Androidの「戻る」スワイプ（システムの戻る操作）で一つ前の画面に戻れるように対応']],
+['2.5.0',['レシピ編集で、材料・手順の途中に「＋」で挿入できるように対応']],
+['2.4.1',['「買い物リストへ」ボタンを押すと、下にあるレシピが開いてしまうバグを修正']],
+['2.4.0',['買い物リストへの追加時に人数を選べるようにし、分量に反映']],
+['2.3.3',['買い物リストに追加できないバグを修正（読み込んだデータが書き換えられない問題）']],
+['2.3.2',['ボタンを押した反応の表示、タップの取りこぼし防止、エラー表示を追加']],
+['2.3.1',['買い物リストに追加できないバグを修正（旧版レシピの材料メモの読み取り、追加件数の表示）']],
+['2.3.0',['材料の表記ゆれ対策：ひらがな・カタカナの同一視、食材約120個の対応表（人参＝にんじんなど）','登録時の材料名の予測表示、買い物リストで表記が違う同じ食材を合算']],
+['2.2.2',['並べ替え後に元の順番へ戻るバグを修正（並び順を1つのリストで保存、保存結果を表示）']],
+['2.2.1',['並べ替え後に元の順番へ戻るバグを修正（保存方法の見直し）']],
+['2.2.0',['並べ替えをカードのドラッグ操作に変更','レシピ画面を下スライドで閉じる機能を追加','買い物リストのチェックが入らないバグを修正']],
+['2.1.0',['分量欄で分数（1/2など）の入力に対応','削除の確認画面（はい・いいえ）を追加し、削除ボタンが動かないバグを修正','買い物リストのチェックと並べ替えの不具合を修正（第1回）']],
+['2.0.0',['大型アップデート：写真付きの一覧・並べ替え・手順ごとのタイマー','人数に合わせた材料の自動計算、大さじ・小さじの換算','分類（主菜・副菜など）、買い物リスト（長押しで選択）、食材での絞り込み検索','材料を「名前・分量・単位」で入力、旧版のレシピを引き継ぎ']],
+['1.0.0',['初公開：レシピの登録・編集・削除、検索、お気に入り、アカウント保存、バックアップ']]
+];
+function rLog(hd,ap){
+  hd.innerHTML='<div class="top"><button class="btn sm" data-a="back">← 戻る</button><h1>更新履歴</h1></div>';
+  ap.innerHTML='<div class="note">現在のバージョン：Ver.'+VER+'</div><div class="note">番号のルール　Ver.A.B.C　A：大きな変更（作り直し・大型の機能追加）／B：機能の追加や改善／C：バグ修正・小さな修正</div>'+
+    ''+
+    LOG.map(function(e){return'<div style="margin:16px 0 4px;font-weight:700">Ver.'+e[0]+'</div>'+e[1].map(function(t){return'<div class="note" style="margin:2px 0;color:var(--tx)">・'+esc(t)+'</div>'}).join('')}).join('');
+}
+function back(t){var top=S.stk.length?S.stk.pop():null;if(t==='list'&&top)t=top;S.v=t;render();scrollTo(0,YS[t]||0);if(location.hash){try{history.back()}catch(e){}}}
+/* plan */
+var SEASL=['塩','砂糖','しょうゆ','みそ','酢','みりん','酒','サラダ油','油','ごま油','オリーブオイル','こしょう','カレー粉','カレールウ','片栗粉','小麦粉','パン粉','ケチャップ','マヨネーズ','コンソメ','だし','鶏ガラスープの素','はちみつ','わさび','からし','水','ソース','ポン酢','めんつゆ','ラー油','豆板醤'],SEAS={},UNSEAS=['少々','適量','適宜','お好みで'];
+SEASL.forEach(function(n){SEAS[canon(n)]=1});
+function recOf(id){return S.R.find(function(x){return x.id===id})}
+function rIngs(r){var a=(r.ings&&r.ings.length)?r.ings:parseLegacy(r.legacy);return a.map(function(i){var n=(i.n||'').trim(),c=canon(n);return{n:n,c:c,s:!!SEAS[c]||UNSEAS.indexOf(i.u)>=0}}).filter(function(i){return i.n})}
+function mainSet(r){var m={},l=[];rIngs(r).forEach(function(i){if(!i.s&&!m[i.c]){m[i.c]=i.n;l.push(i.c)}});return{map:m,list:l}}
+function pcEff(){return S.pcats||(S.R.some(function(r){return r.cat==='主菜'})?['主菜']:[])}
+function pool(){var pc=pcEff();return S.R.filter(function(r){return(!pc.length||pc.indexOf(r.cat)>=0)&&mainSet(r).list.length})}
+function genPlan(n){
+  var P=pool(),used={},held={},out=[];if(!P.length)return out;
+  for(var d=0;d<n;d++){
+    var cand=P.filter(function(r){return!used[r.id]});if(!cand.length){used={};cand=P.slice()}
+    var best=-1,bl=[];
+    cand.forEach(function(r){var sc=mainSet(r).list.filter(function(c){return held[c]}).length;if(sc>best){best=sc;bl=[r]}else if(sc===best)bl.push(r)});
+    var pick=bl[Math.floor(Math.random()*bl.length)];
+    if(best<=0)held={};
+    mainSet(pick).list.forEach(function(c){held[c]=1});
+    used[pick.id]=1;out.push({n:d+1,id:pick.id})
+  }
+  return out
+}
+function candFor(i){
+  var days=S.plan.days,nb={};
+  [days[i-1],days[i+1]].forEach(function(x){var r=x&&recOf(x.id);if(r)mainSet(r).list.forEach(function(c){nb[c]=1})});
+  var uni=pool().filter(function(r){return r.id!==days[i].id});
+  if(!uni.length)uni=S.R.filter(function(r){return r.id!==days[i].id&&mainSet(r).list.length});
+  var out=uni.map(function(r){var ms=mainSet(r),sh=ms.list.filter(function(c){return nb[c]}),u=[];days.forEach(function(x,k){if(k!==i&&x.id===r.id)u.push(k+1)});return{r:r,sc:sh.length,sh:sh.map(function(c){return ms.map[c]}),u:u}});
+  out.sort(function(a,b){return b.sc-a.sc||a.u.length-b.u.length||Math.random()-.5});return out.slice(0,8)
+}
+function openCand(i){S.ci=i;S.cl=candFor(i);var el=$('#cand');el.classList.remove('hidden');
+  el.innerHTML='<div class="cbox"><h1 style="font-size:18px;margin:0 0 4px">'+(i+1)+'日目の再抽選</h1><div class="note">前後の日と共通の食材が多い順です。選ぶと差し替わります。</div>'+(S.cl.length?S.cl.map(function(c){return'<button class="pr" data-cd="'+c.r.id+'"><span class="th">'+img(c.r)+'</span><span><b>'+esc(c.r.name)+'</b><br><small>'+(c.sc?'共通：'+esc(c.sh.join('、'))+'（'+c.sc+'）':'共通の食材なし')+(c.u.length?'　※'+c.u.join('・')+'日目にも登場':'')+'</small></span></button>'}).join(''):'<div class="empty">ほかの候補がありません</div>')+'<div class="row"><button class="btn p" data-a="crand">おまかせで選ぶ</button><button class="btn" data-a="cclose">閉じる</button></div></div>'}
+function closeCand(){var el=$('#cand');el.classList.add('hidden');el.innerHTML=''}
+function pickCand(id){S.plan.days[S.ci].id=id;saveSet();closeCand();render()}
+function planShop(){var m={},o=[];S.plan.days.forEach(function(x,i){var r=recOf(x.id);if(!r)return;(r.ings&&r.ings.length?r.ings:parseLegacy(r.legacy)).forEach(function(g){var n=(g.n||'').trim();if(!n)return;var c=canon(n);if(SEAS[c]||UNSEAS.indexOf(g.u)>=0)return;if(!m[c]){m[c]={c:c,n:n,d:[],q:{},nq:false};o.push(m[c])}var it=m[c];if(it.d.indexOf(i+1)<0)it.d.push(i+1);var u=g.u||'',a=g.a;if(a===''||a==null||isNaN(a)){it.nq=true;return}if(FM[u]){a=a*FM[u];u='tsp'}it.q[u]=(it.q[u]||0)+a})});return o}
+function planAmt(it){var k=Object.keys(it.q);if(!k.length)return'適量';return k.map(function(u){return sdisp({a:it.q[u],u:u})}).join(' + ')+(it.nq?' ほか':'')}
+function addF(n){n=String(n||'').trim();if(n&&!S.fsel.some(function(x){return canon(x)===canon(n)}))S.fsel.push(n)}
+function addFs(){var e=$('#fi');if(e)e.value.split(/[\s、,，]+/).forEach(addF)}
+function findR(){
+  var sel={},out=[];S.fsel.forEach(function(n){sel[canon(n)]=1});
+  S.R.forEach(function(r){var ms=mainSet(r);if(!ms.list.length)return;var miss=ms.list.filter(function(c){return!sel[c]}),have=ms.list.length-miss.length;
+    if(S.fmode==='exact'){if(!miss.length)out.push({r:r,miss:[],have:have})}else if(have>0)out.push({r:r,miss:miss.map(function(c){return ms.map[c]}),have:have})});
+  out.sort(function(a,b){return a.miss.length-b.miss.length||b.have-a.have});return out
+}
+function rPlanA(){
+  var cs=allCats(),pc=pcEff(),h='<label>日数</label><div class="sv"><button class="btn" data-pd="-1">－</button><b>'+S.pdays+'日分</b><button class="btn" data-pd="1">＋</button></div>'+
+    '<label>対象の分類（この分類のレシピから選びます）</label><div class="chips" style="flex-wrap:wrap"><button class="chip'+(!pc.length?' on':'')+'" data-pc="">すべて</button>'+cs.map(function(c){return'<button class="chip'+(pc.indexOf(c)>=0?' on':'')+'" data-pc="'+esc(c)+'">'+esc(c)+'</button>'}).join('')+'</div>'+
+    '<div class="row"><button class="btn p" data-a="pgen">'+(S.plan?'作り直す':'献立を作る')+'</button></div><div class="note">前日までに使った食材を、できるだけ翌日以降も使い回すように選びます（調味料などは除きます）。</div>';
+  if(!S.plan||!S.plan.days.length)return h;
+  var D=S.plan.days,sets=D.map(function(x){var r=recOf(x.id);return r?mainSet(r):null});
+  h+=D.map(function(x,i){var r=recOf(x.id),ms=sets[i];
+    if(!r)return'<div class="pd"><h3>'+(i+1)+'日目</h3><div class="note">（削除されたレシピ）</div><button class="btn sm" data-pr="'+i+'">再抽選</button></div>';
+    var nb={};[sets[i-1],sets[i+1]].forEach(function(s){if(s)s.list.forEach(function(c){nb[c]=1})});
+    return'<div class="pd"><h3>'+(i+1)+'日目　'+esc(r.name)+'</h3><div>'+ms.list.map(function(c){return'<span class="ic'+(nb[c]?' k':'')+'">'+esc(ms.map[c])+'</span>'}).join('')+'</div><div class="row" style="margin-bottom:0"><button class="btn sm" data-pr="'+i+'">再抽選</button><button class="btn sm" data-po="'+r.id+'">レシピを開く</button></div></div>'}).join('');
+  h+='<div class="note">色の付いた食材は、前後の日と共通の食材です。</div>';
+  if(!S.plan.fixed)return h+'<div class="row"><button class="btn p" data-a="pfix">この献立で買い物リストを作る</button></div>';
+  var L=planShop();
+  return h+'<label>買い物リスト（調味料などは除く）</label>'+(L.length?L.map(function(it){var on=S.plan.chk&&S.plan.chk[it.c];return'<button class="sh'+(on?' dn2':'')+'" data-pi="'+esc(it.c)+'"><i class="cb">'+(on?'✓':'')+'</i><span>'+esc(it.n)+'</span><b>'+esc(planAmt(it))+' <small>'+it.d.join('・')+'日目</small></b></button>'}).join(''):'<div class="empty">食材がありません</div>')+
+    '<div class="note">分量は、各レシピに登録した人数分を食材ごとに合計した数です。タップすると「家にある・買った」の印（打ち消し線）が付きます。</div><div class="row"><button class="btn" data-a="pto">分量つきで通常の買い物リストにも追加</button><button class="btn" data-a="puncheck">印をすべて外す</button></div>'
+}
+function rPlanB(){
+  var sel=S.fsel,h='<label>手元の食材</label><div class="chips" style="flex-wrap:wrap">'+(sel.length?sel.map(function(n){return'<button class="chip on" data-fx="'+esc(n)+'">'+esc(n)+' ✕</button>'}).join(''):'<span class="note">まだ選んでいません</span>')+'</div>'+
+    '<div class="row" style="flex-wrap:nowrap;margin-top:4px"><input id="fi" placeholder="食材を入力（空白で複数）" autocomplete="off"><button class="btn" data-a="fadd" style="flex:none">追加</button></div>';
+  var freq={},nm={},sc={};sel.forEach(function(n){sc[canon(n)]=1});
+  S.R.forEach(function(r){var ms=mainSet(r);ms.list.forEach(function(c){freq[c]=(freq[c]||0)+1;nm[c]=ms.map[c]})});
+  var sug=Object.keys(freq).filter(function(c){return!sc[c]}).sort(function(a,b){return freq[b]-freq[a]}).slice(0,24);
+  if(sug.length)h+='<label>よく使う食材（タップで追加）</label><div class="chips" style="flex-wrap:wrap">'+sug.map(function(c){return'<button class="chip" data-fa="'+esc(nm[c])+'">'+esc(nm[c])+'</button>'}).join('')+'</div>';
+  h+='<label>探し方</label><div class="seg"><button class="chip'+(S.fmode==='exact'?' on':'')+'" data-fm="exact">完全一致</button><button class="chip'+(S.fmode==='part'?' on':'')+'" data-fm="part">部分一致</button></div><div class="note">'+(S.fmode==='exact'?'選んだ食材だけで作れるレシピ（調味料は除く）':'足りない食材が少ない順に表示します')+'</div>';
+  if(!sel.length)return h+'<div class="empty">食材を選ぶと、作れるレシピが出ます</div>';
+  var res=findR();
+  return h+(res.length?res.map(function(x){return'<button class="pr" data-po="'+x.r.id+'"><span class="th">'+img(x.r)+'</span><span><b>'+esc(x.r.name)+'</b><br><small>'+(x.miss.length?'あと'+x.miss.length+'品：'+esc(x.miss.join('、')):'今ある食材で作れます')+'</small></span></button>'}).join(''):'<div class="empty">該当するレシピがありません</div>')
+}
+function rPlan(hd,ap){
+  hd.innerHTML='<div class="top"><button class="btn sm" data-a="back">← 戻る</button><h1>献立</h1></div><div class="seg"><button class="chip'+(S.ptab==='plan'?' on':'')+'" data-pt="plan">献立づくり</button><button class="chip'+(S.ptab==='find'?' on':'')+'" data-pt="find">食材から探す</button></div>';
+  ap.innerHTML=S.ptab==='plan'?rPlanA():rPlanB();
+}
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.id==='fi'){e.preventDefault();addFs();render()}});
+var YS={};
+function go(v,how){if(S.v!==v){YS[S.v]=scrollY;if(how!=='replace')S.stk.push(S.v)}S.v=v;render();scrollTo(0,0);try{if(how==='replace')location.replace('#'+v);else if(location.hash!=='#'+v)location.hash=v}catch(e){}}
+window.addEventListener('hashchange',function(){var h=location.hash.slice(1),v=(['detail','edit','shop','log','plan'].indexOf(h)>=0)?h:'list';if(v===S.v)return;if(v==='detail'&&!S.cur)v='list';if(v==='edit'&&!S.ed)v='list';if(S.stk.length)S.stk.pop();S.v=v;render();scrollTo(0,YS[v]||0)});
+/* events */
+var onClick,barT=0;
+document.addEventListener('click',onClick=function(e){if(e.type==='click'&&Date.now()-barT<700){e.preventDefault();return}
+  var dq=e.target.closest('[data-dl]');if(dq){var ok=dq.dataset.dl==='1',v=$('#din').value,f=dcb;dcb=null;$('#dlg').classList.add('hidden');if(ok&&f)f(v);return}
+  if(lp){var wl=Date.now()<lp;lp=0;if(wl)return}
+  var pb=e.target.closest('#phb');if(pb){var pfi=$('#pf');if(pfi)pfi.click();return}
+  var sh=e.target.closest('.sh[data-si]');if(sh){var it=S.shop[+sh.dataset.si];if(it){it.done=!it.done;saveSet();render()}return}
+  var t=e.target.closest('button,[data-open]');if(!t)return;var d=t.dataset,a=d.a;if(t.closest('#mn')&&a!=='menu'&&d.ac===undefined&&d.thm===undefined)menuHide();if(d.ac!==undefined){setAcc(+d.ac);menuShow();return}if(d.thm!==undefined){setThm(+d.thm);menuShow();return}
+  if(d.qm){S.qm=d.qm;render();if(S.sx){var qe=$('#q');if(qe)qe.focus()}return}
+  if(d.fcat!==undefined){S.cat=S.cat===d.fcat?'':d.fcat;render();return}
+  if(d.open){
+    if(S.selOn){if(S.sel[d.open])delete S.sel[d.open];else S.sel[d.open]=1;if(!Object.keys(S.sel).length)S.selOn=false;render()}
+    else{S.cur=S.R.find(function(x){return x.id===d.open});S.sv=S.cur.serv;go('detail')}
+    return}
+  if(d.pt){S.ptab=d.pt;render();return}
+  if(d.pd){S.pdays=Math.min(14,Math.max(1,S.pdays+parseInt(d.pd)));saveSet();render();return}
+  if(d.pc!==undefined){var pc=pcEff().slice(),ix=pc.indexOf(d.pc);if(d.pc==='')pc=[];else if(ix>=0)pc.splice(ix,1);else pc.push(d.pc);S.pcats=pc;saveSet();render();return}
+  if(d.pr!==undefined){openCand(+d.pr);return}
+  if(d.cd!==undefined){pickCand(d.cd);return}
+  if(d.po){var rp=recOf(d.po);if(rp){closeCand();S.cur=rp;S.sv=rp.serv;go('detail')}return}
+  if(d.pi!==undefined){if(!S.plan.chk)S.plan.chk={};S.plan.chk[d.pi]=!S.plan.chk[d.pi];saveSet();render();return}
+  if(d.fx!==undefined){S.fsel=S.fsel.filter(function(n){return n!==d.fx});render();return}
+  if(d.fa!==undefined){addF(d.fa);render();return}
+  if(d.fm){S.fmode=d.fm;render();return}
+  if(d.tk!==undefined){var tt=T[d.tk],rr2=tt&&S.R.find(function(x){return x.id===tt.rid});if(rr2){S.cur=rr2;S.sv=rr2.serv;go('detail')}return}
+  if(d.sv2){S.selSv=Math.max(1,S.selSv+parseInt(d.sv2));render();return}
+  if(d.sv){var n=parseInt(d.sv);if(S.v==='edit'){collect();S.ed.serv=Math.max(1,S.ed.serv+n)}else S.sv=Math.max(1,S.sv+n);render();return}
+  if(d.ta){tmAct(d.ta,+d.ti);return}
+  if(d.ii!==undefined){collect();S.ed.ings.splice(+d.ii,0,{n:'',a:'',u:''});render();var rw=document.querySelectorAll('.ir')[+d.ii];if(rw)rw.querySelector('.in').focus();return}
+  if(d.is!==undefined){collect();S.ed.steps.splice(+d.is,0,{t:'',m:0});render();var sr=document.querySelectorAll('.sr')[+d.is];if(sr)sr.querySelector('.st').focus();return}
+  if(d.sg!==undefined){if(sgIn&&document.contains(sgIn)){sgIn.value=d.sg;var ia=sgIn.closest('.ir').querySelector('.ia');hideSg();ia.focus()}return}
+  if(d.ec){collect();if(d.ec==='+'){ask('追加する分類名を入力してください',function(v2){var c=(v2||'').trim();if(!c)return;if(allCats().indexOf(c)<0){S.cats.push(c);saveSet()}S.ed.cat=c;render()},true,'追加','キャンセル');return}S.ed.cat=S.ed.cat===d.ec?'':d.ec;render();return}
+  if(d.di!==undefined){collect();S.ed.ings.splice(+d.di,1);render();return}
+  if(d.ds!==undefined){collect();S.ed.steps.splice(+d.ds,1);render();return}
+  switch(a){
+    case'ro':S.ro=!S.ro;render();break;
+    case'shop':go('shop');break;
+    case'log':go('log');break;
+    case'plan':go('plan');break;
+    case'pgen':if(!pool().length){toast('対象の分類に、材料が登録されたレシピがありません');break}S.plan={days:genPlan(S.pdays),fixed:false,chk:{}};saveSet();render();break;
+    case'pfix':S.plan.fixed=true;saveSet();render();break;
+    case'pto':var ids2=S.plan.days.map(function(x){return x.id}).filter(recOf);addShop(ids2,null);toast((S.lastAdd||0)+'件の材料を買い物リストに追加しました');break;
+    case'puncheck':S.plan.chk={};saveSet();render();break;
+    case'crand':if(S.cl.length){var tp=S.cl.slice(0,3);pickCand(tp[Math.floor(Math.random()*tp.length)].r.id)}break;
+    case'cclose':closeCand();break;
+    case'fadd':addFs();render();break;
+    case'alok':ALM.forEach(function(k){delete T[k]});ALM=[];saveT();showAl();if(S.v==='detail')render();break;
+    case'back':back('list');break;
+    case'fav0':S.fav=!S.fav;render();break;
+    case'add':S.imp=false;S.ed={name:'',cat:'',serv:2,photo:'',ings:[{n:'',a:'',u:''}],steps:[{t:'',m:0}],memo:''};go('edit');break;
+    case'edit':S.imp=false;S.ed=JSON.parse(JSON.stringify(S.cur));S.ed.serv=S.sv;if(!S.ed.ings.length){S.ed.ings=S.ed.legacy?parseLegacy(S.ed.legacy):[];if(!S.ed.ings.length)S.ed.ings.push({n:'',a:'',u:''})}if(!S.ed.steps.length)S.ed.steps.push({t:'',m:0});go('edit');break;
+    case'yimp':collect();S.imp=true;render();break;
+    case'impx':collect();S.imp=false;render();break;
+    case'impgo':var R=impParse($('#itx').value);if(!R.ings.length&&!R.steps.length){toast('材料を読み取れませんでした。「材料」の見出しごと貼り付けてください');break}collect();impApply(R);S.imp=false;render();toast('材料'+R.ings.length+'件・手順'+R.steps.length+'件を取り込みました。内容を確認してください');break;
+    case'dfav':S.cur.fav=!S.cur.fav;persist(S.cur);render();break;
+    case'del':ask('このレシピを削除しますか？',function(){removeR(S.cur.id);S.cur=null;back('list');toast('削除しました')});break;
+    case'ai':collect();S.ed.ings.push({n:'',a:'',u:''});render();var lr=document.querySelectorAll('.ir');if(lr.length)lr[lr.length-1].querySelector('.in').focus();break;
+    case'as':collect();S.ed.steps.push({t:'',m:0});render();var ls=document.querySelectorAll('.sr');if(ls.length)ls[ls.length-1].querySelector('.st').focus();break;
+    case'pdel':collect();S.ed.photo='';render();break;
+    case'cancel':back(S.ed&&S.ed.id?'detail':'list');break;
+    case'save':
+      collect();var x=S.ed;if(!x.name.trim()){toast('料理名を入力してください');break}
+      var r={id:x.id||uid(),name:x.name.trim(),cat:x.cat||'',serv:x.serv||1,photo:x.photo||'',ings:x.ings.filter(function(i){return i.n.trim()}),steps:x.steps.filter(function(s){return s.t.trim()}),memo:x.memo||'',fav:!!x.fav,updated:Date.now(),ord:x.id?ordOf(x):-Date.now()};
+      if(!r.ings.length&&x.legacy)r.legacy=x.legacy;
+      var wasNew=!x.id;persist(r);S.cur=r;S.sv=r.serv;if(wasNew)go('detail','replace');else back('detail');break;
+    case'sadd':addShop(Object.keys(S.sel),S.selSv);var nAdd=S.lastAdd;S.sel={};S.selOn=false;render();toast(nAdd?nAdd+'件の材料を'+S.selSv+'人前で買い物リストに追加しました':'追加できる材料がありません。レシピの材料を入力してください');break;
+    case'scan':S.sel={};S.selOn=false;render();break;
+    case'sdone':S.shop=S.shop.filter(function(i){return!i.done});saveSet();render();break;
+    case'sall':ask('買い物リストをすべて削除しますか？',function(){S.shop=[];saveSet();render()});break;
+    case'sx':S.sx=true;render();var qx=$('#q');if(qx)qx.focus();break;
+    case'sxc':S.sx=false;S.q='';render();break;
+    case'share':doShare();break;
+    case'shx':var sb=$('#shb');if(sb)sb.classList.add('hidden');break;
+    case'menu':menuShow();break;
+    case'mclose':break;
+    case'exp':
+      if(!dl){try{var bk=JSON.stringify({app:'recipes',version:2,recipes:S.R,cats:S.cats,shop:S.shop},null,2),bl=new Blob([bk],{type:'application/json'}),au=URL.createObjectURL(bl),a1=document.createElement('a');a1.href=au;a1.download='recipes-backup.json';document.body.appendChild(a1);a1.click();document.body.removeChild(a1);setTimeout(function(){URL.revokeObjectURL(au)},2000)}catch(e){toast('書き出せませんでした')}break}
+      dl.save({filename:'recipes-backup.json',data:JSON.stringify({app:'recipes',version:2,recipes:S.R,cats:S.cats,shop:S.shop},null,2)}).catch(function(){});break;
+    case'imp':$('#imp').click();break;
+  }
+});
+document.addEventListener('input',function(e){if(e.target.id==='q'){S.q=e.target.value;rGrid()}else if(e.target.classList&&e.target.classList.contains('in')){sgIn=e.target;showSg()}});
+document.addEventListener('focusin',function(e){var t=e.target;if(t.classList&&t.classList.contains('in')){clearTimeout(sgT);sgIn=t;showSg()}});
+document.addEventListener('focusout',function(e){var t=e.target;if(t.classList&&t.classList.contains('in')){sgT=setTimeout(hideSg,700)}});
+document.addEventListener('change',function(e){
+  var t=e.target;
+  if(t.dataset.sc!==undefined){S.shop[+t.dataset.sc].done=t.checked;saveSet();render();return}
+  if(t.id==='pf'&&t.files[0]&&assets){
+    collect();toast('写真をアップロード中…');
+    shrink(t.files[0]).then(function(b){return assets.upload(b)}).then(function(res){S.ed.photo=res.id;render();toast('写真を追加しました')}).catch(function(){toast('写真のアップロードに失敗しました')});
+    return}
+  if(t.id==='imp'&&t.files[0]){
+    var fr0=new FileReader();
+    fr0.onload=function(){try{
+      var j=JSON.parse(fr0.result),arr=Array.isArray(j)?j:j.recipes;if(!Array.isArray(arr))throw 0;
+      arr.forEach(function(r){if(r&&r.name){r.id=r.id||uid();persist(norm(r))}});
+      if(j.cats){j.cats.forEach(function(c){if(S.cats.indexOf(c)<0)S.cats.push(c)});saveSet()}
+      render();toast('読み込みました')}catch(x){toast('読み込めないファイルです')}};
+    fr0.readAsText(t.files[0]);t.value='';
+  }
+});
+/* long press & drag */
+var lx=0,ly=0,raf=0,dT=0,dX=0,dY=0;
+function dmove(x,y){if(!drag)return;var els=document.elementsFromPoint(x,y),t=null;for(var j=0;j<els.length;j++){var q=els[j].closest&&els[j].closest('.dc');if(q&&q!==drag){t=q;break}}if(!t)return;var p=drag.parentNode,sib=[].slice.call(p.children),di=sib.indexOf(drag),ti=sib.indexOf(t);if(di<ti){sib.slice(di+1,ti+1).forEach(function(it){p.insertBefore(it,drag)})}else{var ref=drag.nextSibling;sib.slice(ti,di).forEach(function(it){p.insertBefore(it,ref)})}}
+function saveSeq(list){if(mode!=='cloud'){lsSave();return}var i=0;hold=Date.now()+3000;(function step(){if(i>=list.length)return;var r=list[i++];col.doc(r.id).set(r).then(function(){hold=Date.now()+2000;step()}).catch(function(){hold=0;fail()})})()}
+function dloop(){if(!drag)return;if(ly<110)scrollBy(0,-10);else if(ly>innerHeight-110)scrollBy(0,10);dmove(lx,ly);raf=requestAnimationFrame(dloop)}
+document.addEventListener('contextmenu',function(e){if(e.target.closest('.card'))e.preventDefault()});
+document.addEventListener('pointerdown',function(e){
+  var h=e.target.closest('.dc');
+  if(h&&S.ro){lx=e.clientX;ly=e.clientY;dX=lx;dY=ly;clearTimeout(dT);dT=setTimeout(function(){dT=0;drag=h;h.classList.add('drg');if(navigator.vibrate)navigator.vibrate(25);cancelAnimationFrame(raf);raf=requestAnimationFrame(dloop)},300);return}
+  var c=e.target.closest('.card');
+  if(c&&S.v==='list'&&!S.ro&&!S.selOn){lpX=e.clientX;lpY=e.clientY;lpT=setTimeout(function(){lpT=0;lp=Date.now()+300;S.selOn=true;S.sel[c.dataset.open]=1;var rr=S.R.find(function(x){return x.id===c.dataset.open});S.selSv=(rr&&rr.serv)||2;if(navigator.vibrate)navigator.vibrate(30);render()},500)}
+});
+document.addEventListener('pointermove',function(e){
+  if(drag){
+    lx=e.clientX;ly=e.clientY;
+    var t=null;
+    dmove(lx,ly);
+    return}
+  if(lpT&&(Math.abs(e.clientX-lpX)>10||Math.abs(e.clientY-lpY)>10)){clearTimeout(lpT);lpT=0}
+  if(dT&&(Math.abs(e.clientX-dX)>10||Math.abs(e.clientY-dY)>10)){clearTimeout(dT);dT=0}
+});
+function pup(){
+  clearTimeout(dT);dT=0;clearTimeout(lpT);lpT=0;if(lp)setTimeout(function(){lp=false},300);
+  if(!drag)return;
+  var did=drag.dataset.id,ids=[].map.call(document.querySelectorAll('.dc'),function(r){return r.dataset.id});drag=null;cancelAnimationFrame(raf);hold=Date.now()+2000;
+  var same=ids.every(function(id,i){return S.R[i]&&S.R[i].id===id});if(same){toast('順番は変わりませんでした')}else{S.order=ids;saveSet();toast('並び順を保存しました')}
+  if(mode!=='cloud')lsSave();sortR();render();
+}
+document.addEventListener('pointerup',pup);document.addEventListener('pointercancel',pup);
+document.addEventListener('touchmove',function(e){if(drag)e.preventDefault()},{passive:false});
+var sw=null;
+function swEnd(){if(!sw)return;var m=$('#app');if(sw.on){if(sw.dy>110){m.style.transition='transform .2s';m.style.transform='translateY(100vh)';setTimeout(function(){m.style.transform='';m.style.transition='';back('list')},180)}else{m.style.transition='transform .2s';m.style.transform='';setTimeout(function(){m.style.transition=''},220)}}sw=null}
+document.addEventListener('touchstart',function(e){if(S.v==='detail'&&scrollY<=0&&e.touches.length===1&&!e.target.closest('button,input,textarea'))sw={y:e.touches[0].clientY,x:e.touches[0].clientX,on:false,dy:0};else sw=null},{passive:true});
+document.addEventListener('touchmove',function(e){if(!sw)return;var dy=e.touches[0].clientY-sw.y,dx=e.touches[0].clientX-sw.x;if(!sw.on){if(dy>12&&dy>Math.abs(dx)*1.5&&scrollY<=0)sw.on=true;else if(Math.abs(dx)>20||dy<-10){sw=null;return}}if(sw.on){var m=$('#app');m.style.transition='none';m.style.transform='translateY('+Math.max(0,dy)+'px)';sw.dy=dy;if(e.cancelable)e.preventDefault()}},{passive:false});
+document.addEventListener('touchend',swEnd,{passive:true});document.addEventListener('touchcancel',swEnd,{passive:true});
+document.addEventListener('pointerup',function(e){var b=e.target.closest&&e.target.closest('.sb button');if(b){barT=Date.now();onClick({target:b,type:'x'})}});
+window.addEventListener('error',function(e){toast('エラー: '+(e.message||'不明なエラー'))});
+/* start */
+var lo=lsLoad();S.R=(lo.r||lsLegacy()).map(norm);S.cats=lo.c||[];S.shop=lo.s||[];S.order=lo.o||[];S.plan=lo.p||null;S.pdays=lo.pd||7;S.pcats=lo.pc||null;sortR();render();loadT();if(ALM.length)showAl();
+try{history.scrollRestoration='manual'}catch(e){}
+if(location.hash){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}
+(function(){
+  if(!window.claude||!claude.use)return;
+  Promise.all([claude.use('db'),claude.use('user'),claude.use('assets'),claude.use('downloads')]).then(function(res){
+    assets=res[2];dl=res[3];var db=res[0],user=res[1];
+    if(!db||!user){render();return}
+    return user.id().then(function(uid0){
+      if(!uid0){render();return}
+      col=db.collection('data/users/'+uid0);var first=true;
+      col.onSnapshot(function(snap){
+        var rs=[],set=null;
+        snap.docs.forEach(function(d){var x=d.data();if(!x)return;x=JSON.parse(JSON.stringify(x));if(d.id==='_settings')set=x;else if(d.id.charAt(0)!=='_')rs.push(norm(x))});
+        if(first){first=false;
+          if(!rs.length){var l=lsLoad(),src=(l.r&&l.r.length)?l.r:lsLegacy();
+            src.forEach(function(r){r=norm(r);if(!r.id)r.id=uid();col.doc(r.id).set(r).catch(fail);rs.push(r)})}}
+        if(Date.now()<hold)return;S.R=rs;if(set&&!pend&&Date.now()>shold){S.cats=set.cats||[];S.shop=set.shop||[];S.order=set.order||[];S.plan=set.plan||null;S.pdays=set.pdays||7;S.pcats=set.pcats||null}sortR();
+        mode='cloud';
+        if(S.v==='detail'&&S.cur){S.cur=S.R.find(function(x){return x.id===S.cur.id})||null;if(!S.cur)S.v='list'}
+        if(S.v!=='edit'&&!drag)render();
+      },function(){mode='local';render()});
+    });
+  }).catch(function(){});
+})();
+</script>
+</body>
+</html>
