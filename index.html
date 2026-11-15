@@ -78,12 +78,37 @@ pre{white-space:pre-wrap;font:inherit;margin:4px 0}
 <div id="cand" class="hidden"></div><div id="al" class="hidden"></div><div id="tb"></div><div id="toast"></div><div id="dlg" class="hidden"><div class="dbox"><div id="dmsg"></div><input id="din" class="hidden"><div class="row"><button class="btn" data-dl="0">いいえ</button><button class="btn p" data-dl="1">はい</button></div></div></div>
 <input type="file" id="imp" accept="application/json,.json" class="hidden">
 <datalist id="units"><option value="g"><option value="ml"><option value="個"><option value="本"><option value="枚"><option value="切れ"><option value="片"><option value="袋"><option value="パック"><option value="缶"><option value="丁"><option value="束"><option value="カップ"><option value="大さじ"><option value="小さじ"><option value="少々"><option value="適量"></datalist>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* Firebase connection: provides the same interface the app uses on claude.ai (window.claude) */
+(function(){
+if(!window.firebase)return;
+var CFG={apiKey:"AIzaSyCMutMvHNEejKpuVHDsrsqbHrrYBoBiUT4",authDomain:"my-recipe-4ee30.firebaseapp.com",projectId:"my-recipe-4ee30",storageBucket:"my-recipe-4ee30.firebasestorage.app",messagingSenderId:"809361598971",appId:"1:809361598971:web:6dcae5bfd0c9df4629c35e"};
+firebase.initializeApp(CFG);var auth=firebase.auth(),fs=firebase.firestore();
+function box(){var e=document.getElementById('lgn');if(e)return e;e=document.createElement('div');e.id='lgn';e.style.cssText='position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;background:var(--bg,#fffaf4);color:var(--tx,#3a2e28);font-size:15px';e.innerHTML='<div style="font-size:42px">🍽</div><div style="font-weight:bold;font-size:18px">マイレシピ</div><div>ログインすると、スマホでもパソコンでも<br>同じレシピが見られます</div><button id="lgb" style="padding:12px 22px;border-radius:24px;border:1px solid #bbb;background:#fff;color:#333;font-size:15px">Googleでログイン</button><button id="lgs" style="border:0;background:none;color:inherit;text-decoration:underline;font-size:13px">ログインせずに使う（この端末だけに保存）</button><div id="lge" style="font-size:12px;color:#c0392b"></div>';document.body.appendChild(e);return e}
+var done=false;
+var user={id:function(){return new Promise(function(res){
+ function fin(v){if(done)return;done=true;var e=document.getElementById('lgn');if(e)e.remove();res(v)}
+ auth.onAuthStateChanged(function(u){if(u)fin(u.uid);else if(!done){var e=box();e.querySelector('#lgb').onclick=function(){var p=new firebase.auth.GoogleAuthProvider();auth.signInWithPopup(p).catch(function(x){if(x&&(x.code==='auth/popup-blocked'||x.code==='auth/operation-not-supported-in-this-environment'))auth.signInWithRedirect(p);else if(x&&x.code!=='auth/popup-closed-by-user'&&x.code!=='auth/cancelled-popup-request')e.querySelector('#lge').textContent='ログインできませんでした（'+(x.code||'不明')+'）'})};e.querySelector('#lgs').onclick=function(){fin(null)}}});
+})}};
+var db={collection:function(){var c=fs.collection('users/'+auth.currentUser.uid+'/recipes');return{
+ doc:function(id){var d=c.doc(id);return{set:function(o){return d.set({j:JSON.stringify(o)})},delete:function(){return d.delete()}}},
+ onSnapshot:function(ok,ng){return c.onSnapshot(function(s){ok({docs:s.docs.map(function(d){var v=d.data();return{id:d.id,data:function(){try{return JSON.parse(v.j)}catch(e){return null}}}})})},ng)}}}};
+var assets={upload:function(b){return new Promise(function(ok,ng){var fr=new FileReader();fr.onload=function(){ok({id:fr.result})};fr.onerror=ng;fr.readAsDataURL(b)})}};
+var dls={save:function(o){return new Promise(function(ok){var b=new Blob([o.data],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=o.filename;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();ok()},500)})}};
+var M={db:db,user:user,assets:assets,downloads:dls};
+window.claude={use:function(n){return Promise.resolve(M[n])}};
+})();
+</script>
 <script>
 var $=function(s){return document.querySelector(s)};
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 var S={R:[],cats:[],shop:[],order:[],plan:null,pdays:7,pcats:null,ptab:'plan',fsel:[],fmode:'exact',stk:[],ci:0,cl:[],selSv:2,q:'',qm:'n',cat:'',fav:false,v:'list',cur:null,sel:{},selOn:false,ro:false,sv:2,ed:null};
 var DEF=['主菜','副菜','汁物','お菓子','主食'],FM={'小さじ':1,'大さじ':3,'カップ':40};
-var mode='local',col=null,assets={upload:function(b){return new Promise(function(ok,ng){var fr=new FileReader();fr.onload=function(){ok({id:fr.result})};fr.onerror=ng;fr.readAsDataURL(b)})}},dl=null,LS='recipes_v2',T={},AC=null,drag=null,lp=false,lpT=0,lpX=0,lpY=0,sT=0;
+var mode='local',col=null,assets=null,dl=null,LS='recipes_v2',T={},AC=null,drag=null,lp=false,lpT=0,lpX=0,lpY=0,sT=0;
+function pu(p){return /^data:/.test(p)?p:'/_blob/'+p}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function ordOf(r){return r.ord!=null?r.ord:-(r.updated||0)}
 function sortR(){var m={};S.order.forEach(function(id,i){m[id]=i});S.R.sort(function(a,b){var ia=m[a.id],ib=m[b.id];if(ia!==undefined&&ib!==undefined)return ia-ib;if(ia===undefined&&ib===undefined)return(b.updated||0)-(a.updated||0);return ia===undefined?-1:1})}
@@ -102,7 +127,7 @@ function norm(r){
 }
 function lsLoad(){try{return JSON.parse(localStorage.getItem(LS)||'{}')}catch(e){return{}}}
 function lsLegacy(){try{return JSON.parse(localStorage.getItem('recipes_v1')||'[]')}catch(e){return[]}}
-function lsSave(){try{localStorage.setItem(LS,JSON.stringify({r:S.R,c:S.cats,s:S.shop,o:S.order,p:S.plan,pd:S.pdays,pc:S.pcats}))}catch(e){try{toast('保存できませんでした（容量がいっぱいかもしれません）')}catch(x){}}}
+function lsSave(){try{localStorage.setItem(LS,JSON.stringify({r:S.R,c:S.cats,s:S.shop,o:S.order,p:S.plan,pd:S.pdays,pc:S.pcats}))}catch(e){toast('保存に失敗しました（容量不足の可能性があります）')}}
 function persist(r){var i=S.R.findIndex(function(x){return x.id===r.id});if(i<0)S.R.push(r);else S.R[i]=r;sortR();if(mode==='cloud')col.doc(r.id).set(r).catch(fail);else lsSave()}
 function removeR(id){S.R=S.R.filter(function(x){return x.id!==id});if(mode==='cloud')col.doc(id).delete().catch(fail);else lsSave()}
 function saveSet(){shold=Date.now()+4000;if(mode==='cloud'){pend=true;clearTimeout(sT);sT=setTimeout(function(){col.doc('_settings').set({cats:S.cats,shop:S.shop,order:S.order,plan:S.plan||null,pdays:S.pdays,pcats:S.pcats||null}).then(function(){pend=false}).catch(function(){pend=false;fail()})},300)}else lsSave()}
@@ -201,7 +226,7 @@ function match(r){
   var keys=r.ings.map(function(i){return[nk(i.n),canon(i.n)]}),lg=nk(r.legacy||'');
   return k.split(/[\s、,，]+/).filter(Boolean).every(function(w){var ws=[nk(w),canon(w)];return keys.some(function(ks){return ks.some(function(x){return ws.some(function(y){return y&&x.indexOf(y)>=0})})})||(lg&&ws.some(function(y){return y&&lg.indexOf(y)>=0}))});
 }
-function img(r){return r.photo?'<img loading="lazy" src="'+(r.photo.indexOf('data:')===0?r.photo:'/_blob/'+r.photo)+'" onerror="this.replaceWith(\'🍽\')">':'🍽'}
+function img(r){return r.photo?'<img loading="lazy" src="'+pu(r.photo)+'">':'🍽'}
 function topBar(){
   return'<div class="top" style="gap:8px"><button class="btn sm" data-a="menu">☰</button>'+(S.selOn?'<h1 style="flex:1">'+Object.keys(S.sel).length+'件選択中</h1>':'<div class="qw"><input id="q" type="search" placeholder="'+(S.qm==='n'?'料理名で検索':'食材（複数可）')+'" value="'+esc(S.q)+'"><button class="chip qt" data-qm="'+(S.qm==='n'?'i':'n')+'" aria-label="検索の種類を切り替え">'+(S.qm==='n'?'料理名':'食材')+'</button></div>')+'<div class="gap">'+(typeof rPlan==='function'?'<button class="btn sm" data-a="plan">献立</button>':'')+'<button class="btn sm" data-a="shop">🛒 '+S.shop.length+'</button></div></div>'}
 S.cols=2;try{if(+localStorage.getItem('rcols')===3)S.cols=3}catch(e){}
@@ -258,7 +283,7 @@ function doShare(){copyTxt(shareText(S.cur))}
 function rDetail(hd,ap){
   var r=S.cur,f=S.sv/r.serv;
   hd.innerHTML='<div class="top"><button class="btn sm" data-a="back">← 戻る</button><div class="gap"><button class="btn sm" data-a="share">コピー</button><button class="btn sm" data-a="dfav">'+(r.fav?'★':'☆')+'</button></div></div>';
-  ap.innerHTML='<div class="grab"></div>'+(r.photo?'<div class="hero"><img src="'+(r.photo.indexOf('data:')===0?r.photo:'/_blob/'+r.photo)+'" onerror="this.parentNode.remove()"></div>':'')+'<h1 style="margin:10px 0 2px">'+esc(r.name)+'</h1><div class="note">'+esc(r.cat)+'</div>'+
+  ap.innerHTML='<div class="grab"></div>'+(r.photo?'<div class="hero"><img src="'+pu(r.photo)+'"></div>':'')+'<h1 style="margin:10px 0 2px">'+esc(r.name)+'</h1><div class="note">'+esc(r.cat)+'</div>'+
     '<label>材料</label><div class="sv"><button class="btn" data-sv="-1">－</button><b>'+S.sv+'人前</b><button class="btn" data-sv="1">＋</button></div>'+
     r.ings.map(function(i){return'<div class="il"><span>'+esc(i.n)+'</span><b>'+esc(fmt(i.a===''?'':i.a*f,i.u||''))+'</b></div>'}).join('')+
     (r.legacy?'<div class="note">以前の材料メモ（編集を開くと材料欄に自動で取り込みます。内容を確認して保存してください）</div><pre>'+esc(r.legacy)+'</pre>':'')+
@@ -335,7 +360,7 @@ function collect(){
   d.steps=[].map.call(document.querySelectorAll('.sr'),function(r){return{t:r.querySelector('.st').value,m:parseInt(r.querySelector('.sm').value)||0}});
 }
 function shrink(f){return new Promise(function(ok,ng){var im=new Image(),u=URL.createObjectURL(f);im.onload=function(){var s=Math.min(1,640/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(function(b){b?ok(b):ng()},'image/jpeg',.72)};im.onerror=ng;im.src=u})}
-var VER='3.8.1',LOG=[['3.8.1',['claude.aiの外で公開する版で、写真の登録と表示ができるように対応（写真は端末の中に保存され、バックアップにも含まれる）。写真が表示できないときは、お皿の絵を表示']],['3.8.0',['検索窓を1段目（☰と🛒の間）に移し、料理名／食材の切り替えボタンを検索窓の中に入れて、レシピ一覧の写真が見えるところを広くした']],['3.7.3',['一覧画面の検索を、虫眼鏡のアイコンから、元の横長の検索窓（料理名／食材の切り替えつき）に戻した']],['3.7.2',['手帳風デザインの詳細画面で、材料の点線が材料名の下に出ていたのを修正（材料名と分量の間をつなぐ点線に戻した）']],['3.7.1',['手帳風デザインの一覧で、2列のとき写真が画面からはみ出す不具合と、3列のときレシピ名が見切れる不具合を修正（レシピ名は2行まで表示）']],['3.7.0',['アクセントカラーをパステルカラーの7色に変更','メニューに「デザイン」を追加。「手帳風」を選ぶと、一覧の写真がチェキ風（テープ・画鋲留め）、文字が手書き風、背景が方眼紙になる（標準に戻すこともできる。選んだデザインは端末に記憶）']],['3.6.0',['メニューに「アクセントカラー」を追加。ボタンや選択中の色を、くすんだ7色から選んで変えられる（選んだ色は端末に記憶）']],['3.5.3',['2列と3列の切り替えをアニメーションで滑らかに表示（各レシピが元の位置から新しい位置へ動く）。切り替え前に画面の中央にあったレシピが、切り替え後も画面の中央付近に残るように調整']],['3.5.2',['共有ボタンを「コピー」ボタンに変更（LINEを直接開けないため）。押すと料理名・分量・手順がコピーされ、LINEやメモに貼り付けられる']],['3.5.1',['詳細画面の共有ボタンを「LINE」ボタンに変更。押すとLINEが開き、送る相手を選んで送れる（開けない場合はコピー）']],['3.5.0',['詳細画面のお気に入り（☆）の横に共有ボタンを追加。料理名・分量・作り方をテキストにして、LINEやメモなどに共有できる（共有画面が開けない環境ではコピーして貼り付け）']],['3.4.0',['検索を虫眼鏡ボタンに変更。タップすると横に広がり、料理名／食材の切り替えボタンを表示','上部の段を整理して、レシピ一覧を広く表示','レシピ一覧で2本の指を広げる／狭めると、横2列と横3列を切り替えられるように（選んだ列数は端末に記憶）']],['3.3.1',['詳細画面のお気に入りボタンを「☆／★」だけの表示に変更','一覧画面の上部にあった「マイレシピ」の文字を削除して、表示を広くした','写真が縦長・横長だと余白ができていた不具合を修正（写真の中心を基準に、枠いっぱいにトリミング）']],['3.3.0',['左上にメニュー（☰）を追加し、バックアップの書き出し・読み込み、バージョン情報、レシピの並べ替えをまとめた','「YouTubeの概要欄から取り込む」を「レシピの読み取り」に名称変更','レシピの登録画面で「写真を選ぶ」ボタンをなくし、写真の部分をタップして選ぶように変更','レシピの詳細画面で「編集」と「削除」の位置を左右入れ替え','「レシピの読み取り」ボタンが「バックアップを読み込む」と干渉し、読み込めなくなる不具合を修正']],['3.2.0',['レシピの追加・編集画面に「YouTubeの概要欄から取り込む」を追加。貼り付けた文章から材料・分量・人数・作り方（時間つき）を読み取り、確認して保存できる']],['3.1.0',['献立の買い物リストで、「○回分」の表示をやめ、食材ごとに必要な分量を合計して表示するように改善（大さじ・小さじは換算して合算）']],['3.0.0',['大型アップデート：レシピから、指定した日数分の献立を自動で作る機能を追加（前日までに使った食材をできるだけ翌日以降も使い回します）','各日の「再抽選」で、前後の日と共通の食材が多いレシピから差し替えられます','手元の食材から作れるレシピを探す機能を追加（完全一致／あと何品で作れるかの部分一致。調味料は自動で除外）','献立から買い物リストを作成（食材ごとの使用回数つき。タップで「家にある・買った」の印）','画面の移動を整理し、「戻る」で元いた画面に戻るように改善']],['2.8.0',['タイマーが、一覧など他の画面に移っても動き続けるように修正（画面下に動作中のタイマーを表示し、タップでそのレシピを開けます）','タイマーが0秒になったとき、画面上部の通知バナー・音・バイブでお知らせ（対応している環境ではシステム通知も表示）','タイマーの状態を端末に保存し、アプリを開き直しても引き継ぐように改善','タイマー動作中は画面が自動で消えないように対応']],['2.7.3',['一覧に戻るときにスクロール位置が戻らないバグを修正（ブラウザの自動スクロール復元と競合していた問題）']],['2.7.2',['詳細画面から一覧に戻ったとき、開く前のスクロール位置に戻るように修正']],['2.7.1',['並べ替え画面でスクロールできないバグを修正（カードを長押ししてからドラッグする操作に変更）','買い物リストの「すべて削除」の不具合が解消したことを確認（調査中の表示を削除）']],
+var VER='4.0.0',LOG=[['4.0.0',['公開版：Googleログインでの同期に対応（スマホとパソコンで同じレシピが見られる）。写真はレシピと一緒にクラウドへ保存。ログインせずに使うと、その端末だけに保存']],['3.8.0',['検索窓を1段目（☰と🛒の間）に移し、料理名／食材の切り替えボタンを検索窓の中に入れて、レシピ一覧の写真が見えるところを広くした']],['3.7.3',['一覧画面の検索を、虫眼鏡のアイコンから、元の横長の検索窓（料理名／食材の切り替えつき）に戻した']],['3.7.2',['手帳風デザインの詳細画面で、材料の点線が材料名の下に出ていたのを修正（材料名と分量の間をつなぐ点線に戻した）']],['3.7.1',['手帳風デザインの一覧で、2列のとき写真が画面からはみ出す不具合と、3列のときレシピ名が見切れる不具合を修正（レシピ名は2行まで表示）']],['3.7.0',['アクセントカラーをパステルカラーの7色に変更','メニューに「デザイン」を追加。「手帳風」を選ぶと、一覧の写真がチェキ風（テープ・画鋲留め）、文字が手書き風、背景が方眼紙になる（標準に戻すこともできる。選んだデザインは端末に記憶）']],['3.6.0',['メニューに「アクセントカラー」を追加。ボタンや選択中の色を、くすんだ7色から選んで変えられる（選んだ色は端末に記憶）']],['3.5.3',['2列と3列の切り替えをアニメーションで滑らかに表示（各レシピが元の位置から新しい位置へ動く）。切り替え前に画面の中央にあったレシピが、切り替え後も画面の中央付近に残るように調整']],['3.5.2',['共有ボタンを「コピー」ボタンに変更（LINEを直接開けないため）。押すと料理名・分量・手順がコピーされ、LINEやメモに貼り付けられる']],['3.5.1',['詳細画面の共有ボタンを「LINE」ボタンに変更。押すとLINEが開き、送る相手を選んで送れる（開けない場合はコピー）']],['3.5.0',['詳細画面のお気に入り（☆）の横に共有ボタンを追加。料理名・分量・作り方をテキストにして、LINEやメモなどに共有できる（共有画面が開けない環境ではコピーして貼り付け）']],['3.4.0',['検索を虫眼鏡ボタンに変更。タップすると横に広がり、料理名／食材の切り替えボタンを表示','上部の段を整理して、レシピ一覧を広く表示','レシピ一覧で2本の指を広げる／狭めると、横2列と横3列を切り替えられるように（選んだ列数は端末に記憶）']],['3.3.1',['詳細画面のお気に入りボタンを「☆／★」だけの表示に変更','一覧画面の上部にあった「マイレシピ」の文字を削除して、表示を広くした','写真が縦長・横長だと余白ができていた不具合を修正（写真の中心を基準に、枠いっぱいにトリミング）']],['3.3.0',['左上にメニュー（☰）を追加し、バックアップの書き出し・読み込み、バージョン情報、レシピの並べ替えをまとめた','「YouTubeの概要欄から取り込む」を「レシピの読み取り」に名称変更','レシピの登録画面で「写真を選ぶ」ボタンをなくし、写真の部分をタップして選ぶように変更','レシピの詳細画面で「編集」と「削除」の位置を左右入れ替え','「レシピの読み取り」ボタンが「バックアップを読み込む」と干渉し、読み込めなくなる不具合を修正']],['3.2.0',['レシピの追加・編集画面に「YouTubeの概要欄から取り込む」を追加。貼り付けた文章から材料・分量・人数・作り方（時間つき）を読み取り、確認して保存できる']],['3.1.0',['献立の買い物リストで、「○回分」の表示をやめ、食材ごとに必要な分量を合計して表示するように改善（大さじ・小さじは換算して合算）']],['3.0.0',['大型アップデート：レシピから、指定した日数分の献立を自動で作る機能を追加（前日までに使った食材をできるだけ翌日以降も使い回します）','各日の「再抽選」で、前後の日と共通の食材が多いレシピから差し替えられます','手元の食材から作れるレシピを探す機能を追加（完全一致／あと何品で作れるかの部分一致。調味料は自動で除外）','献立から買い物リストを作成（食材ごとの使用回数つき。タップで「家にある・買った」の印）','画面の移動を整理し、「戻る」で元いた画面に戻るように改善']],['2.8.0',['タイマーが、一覧など他の画面に移っても動き続けるように修正（画面下に動作中のタイマーを表示し、タップでそのレシピを開けます）','タイマーが0秒になったとき、画面上部の通知バナー・音・バイブでお知らせ（対応している環境ではシステム通知も表示）','タイマーの状態を端末に保存し、アプリを開き直しても引き継ぐように改善','タイマー動作中は画面が自動で消えないように対応']],['2.7.3',['一覧に戻るときにスクロール位置が戻らないバグを修正（ブラウザの自動スクロール復元と競合していた問題）']],['2.7.2',['詳細画面から一覧に戻ったとき、開く前のスクロール位置に戻るように修正']],['2.7.1',['並べ替え画面でスクロールできないバグを修正（カードを長押ししてからドラッグする操作に変更）','買い物リストの「すべて削除」の不具合が解消したことを確認（調査中の表示を削除）']],
 ['2.7.0',['更新履歴の画面を追加（一覧の一番下のバージョン表示から開けます）']],
 ['2.6.0',['Androidの「戻る」スワイプ（システムの戻る操作）で一つ前の画面に戻れるように対応']],
 ['2.5.0',['レシピ編集で、材料・手順の途中に「＋」で挿入できるように対応']],
@@ -514,7 +539,7 @@ document.addEventListener('click',onClick=function(e){if(e.type==='click'&&Date.
     case'menu':menuShow();break;
     case'mclose':break;
     case'exp':
-      if(!dl){try{var bk=JSON.stringify({app:'recipes',version:2,recipes:S.R,cats:S.cats,shop:S.shop},null,2),bl=new Blob([bk],{type:'application/json'}),au=URL.createObjectURL(bl),a1=document.createElement('a');a1.href=au;a1.download='recipes-backup.json';document.body.appendChild(a1);a1.click();document.body.removeChild(a1);setTimeout(function(){URL.revokeObjectURL(au)},2000)}catch(e){toast('書き出せませんでした')}break}
+      if(!dl){toast('この環境では書き出せません');break}
       dl.save({filename:'recipes-backup.json',data:JSON.stringify({app:'recipes',version:2,recipes:S.R,cats:S.cats,shop:S.shop},null,2)}).catch(function(){});break;
     case'imp':$('#imp').click();break;
   }
